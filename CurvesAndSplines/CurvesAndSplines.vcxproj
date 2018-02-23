@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{BD3C00F8-7074-441E-87BE-2F6132FDECA0}</ProjectGuid>
-    <RootNamespace>CurvesAndSplines</RootNamespace>
+    <ProjectGuid>{C3B55AEE-E9A4-41B5-A699-51BF672EF7FB}</ProjectGuid>
+    <RootNamespace>LinesAndPolygons</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -119,6 +119,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\middleware\glad\src\glad.c" />
+    <ClCompile Include="CurvesAndSplines.cpp" />
+    <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="GlyphExtractor.cpp" />
+    <ClCompile Include="OGLSupport.cpp" />
+    <ClCompile Include="texture.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CurvesAndSplines.h" />
+    <ClInclude Include="Geometry.h" />
+    <ClInclude Include="GlyphExtractor.h" />
+    <ClInclude Include="OGLSupport.h" />
+    <ClInclude Include="texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
