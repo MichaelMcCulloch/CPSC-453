@@ -1,46 +1,26 @@
-// ==========================================================================
-// Barebones OpenGL Core Profile Boilerplate
-//    using the GLFW windowing system (http://www.glfw.org)
-//
-// Loosely based on
-//  - Chris Wellons' example (https://github.com/skeeto/opengl-demo) and
-//  - Camilla Berglund's example (http://www.glfw.org/docs/latest/quick.html)
-//
-// Author:  Sonny Chan, University of Calgary
-// Co-Authors:
-//			Jeremy Hart, University of Calgary
-//			John Hall, University of Calgary
-// Date:    December 2015
-// ==========================================================================
-
-#include <iostream>
-#include <fstream>
-#include <algorithm>
-#include <string>
-#include <iterator>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include "CurvesAndSplines.h"
-
+#define HEIGHT 600
+#define WIDTH 800
 using namespace std;
 using namespace glm;
 
-// --------------------------------------------------------------------------
-// Functions to set up OpenGL shader programs for rendering
+uint whichPart = 1;
 
-// load, compile, and link shaders, returning true if successful
-GLuint InitializeShaders()
-{
-	// load shader source from files
-	string vertexSource = LoadSource("shaders/shader.vert");
-	string fragmentSource = LoadSource("shaders/shader.frag");
-	string tcsSource = LoadSource("shaders/tess.tesc");
-	string tesSource = LoadSource("shaders/tess.tese");
+Geometry geo;
+GLuint program;
+glm::mat4 transformMatrix;
+GLuint patchsize;
+
+GLuint InitializeShaders(string shaderName) {
+	string vertexName = shaderName + ".vert";
+	string fragmentName = shaderName + ".frag";
+	string tessControlName = shaderName + ".tesc";
+	string tessEvalName = shaderName + ".tese";
+
+	string vertexSource = LoadSource("shaders/" + vertexName);
+	string fragmentSource = LoadSource("shaders/" + fragmentName);
+	string tcsSource = LoadSource("shaders/" + tessControlName);
+	string tesSource = LoadSource("shaders/" + tessEvalName);
 	if (vertexSource.empty() || fragmentSource.empty())
 		return 0;
 
@@ -65,73 +45,8 @@ GLuint InitializeShaders()
 	return program;
 }
 
-// --------------------------------------------------------------------------
-// GLFW callback functions
-
-// reports GLFW errors
-void ErrorCallback(int error, const char *description)
-{
-	cout << "GLFW ERROR " << error << ":" << endl;
-	cout << description << endl;
-}
-
-// handles keyboard input events
-void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
-}
-
-// ==========================================================================
-// PROGRAM ENTRY POINT
-
-int main(int argc, char *argv[])
-{
-	// initialize the GLFW windowing system
-	if (!glfwInit())
-	{
-		cout << "ERROR: GLFW failed to initialize, TERMINATING" << endl;
-		return -1;
-	}
-	glfwSetErrorCallback(ErrorCallback);
-
-	// attempt to create a window with an OpenGL 4.1 core profile context
-	GLFWwindow *window = 0;
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	int width = 512, height = 512;
-	window = glfwCreateWindow(width, height, "CPSC 453 OpenGL Boilerplate", 0, 0);
-	if (!window)
-	{
-		cout << "Program failed to create GLFW window, TERMINATING" << endl;
-		glfwTerminate();
-		return -1;
-	}
-
-	// set keyboard callback function and make our context current (active)
-	glfwSetKeyCallback(window, KeyCallback);
-	glfwMakeContextCurrent(window);
-
-	//Intialize GLAD
-	if (!gladLoadGL())
-	{
-		cout << "GLAD init failed" << endl;
-		return -1;
-	}
-
-	// query and print out information about our OpenGL environment
-	QueryGLVersion();
-
-	// call function to load and compile shader programs
-	GLuint program = InitializeShaders();
-	if (program == 0)
-	{
-		cout << "Program could not initialize shaders, TERMINATING" << endl;
-		return -1;
-	}
-
+//return the set of control points, and their colors, and a transform matrix which puts everything into view
+pair<pair<vector<vec2>, vector<vec3>>, glm::mat4> makePart1() {
 	vector<vec2> quadBezierVertices = {
 		vec2(1, 1),
 		vec2(2, -1),
@@ -153,47 +68,114 @@ int main(int argc, char *argv[])
 
 	vec3 white = vec3(1.0, 1.0, 1.0);
 	vector<vec3> quadBezierColor;
-	for (int i = 0; i < 12; i++)
-		quadBezierColor.push_back(white);
-	// three vertex positions and assocated colours of a triangle
-	vec2 vertices[] = {
-		vec2(0, 0),
-		vec2(0, 1),
-	};
+	for (int i = 0; i < 12; i++) quadBezierColor.push_back(white);
 
-	vec3 colours[] = {
-		vec3(1.0f, 0.0f, 0.0f),
-		vec3(0.0f, 1.0f, 0.0f),
-	};
+	glm::mat4 transform;
+	transform = glm::scale(transform, glm::vec3(0.5, 0.5, 1.0));
 
-	// call function to create and fill buffers with geometry data
-	Geometry geometry;
-	if (!InitializeVAO(&geometry))
-		cout << "Program failed to intialize geometry!" << endl;
+	auto controlPoints = std::make_pair(quadBezierVertices, quadBezierColor);
+	auto data = std::make_pair(controlPoints, transform);
+	return data;
+}
 
-	if (!LoadGeometry(&geometry, quadBezierVertices.data(), quadBezierColor.data(), 12))
-		cout << "Failed to load geometry" << endl;
+GLFWwindow *InitializeGLFW()
+{
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); //declare opengl version
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //using only the core profile
 
-	glPatchParameteri(GL_PATCH_VERTICES, 3);
-
-	// run an event-triggered main loop
-	while (!glfwWindowShouldClose(window))
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Colors And Effects", NULL, NULL); //create a sqare window object
+	if (window == NULL)
 	{
-		// call function to draw our scene
-		RenderScene(&geometry, program);
+		cout << "Failed to create GLFW window" << endl;
+		glfwTerminate();
+		return NULL;
+	}
+	glfwMakeContextCurrent(window);
 
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{ //initialize Glad
+		cout << "Failed to initialize GLAD" << endl;
+		return NULL;
+	}
+
+	glViewport(0, 0, WIDTH, HEIGHT);
+
+	//sets the callbacks
+	glfwSetKeyCallback(window, KeyCallback);
+	glfwSetErrorCallback(ErrorCallback);
+	return window;
+}
+
+
+
+void RenderScenePH(Geometry *geometry, GLuint program)
+{
+	// clear screen to a dark grey colour
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// bind our shader program and the vertex array object containing our
+	// scene geometry, then tell OpenGL to draw our geometry
+	glUseProgram(program);
+	glBindVertexArray(geometry->vertexArray);
+	
+
+	// reset state to default (no shader or geometry bound)
+	glBindVertexArray(0);
+	glUseProgram(0);
+
+	// check for an report any OpenGL errors
+	CheckGLErrors();
+}
+
+//configure part 1 to be rendered:
+//control points, program, transform, patch size
+void preparePart1A() {
+	//prepare the program
+	program = InitializeShaders("part1");
+
+	//prepare the geo
+	pair<pair<vector<vec2>, vector<vec3>>, glm::mat4> data = makePart1();
+	auto vertices = data.first.first;
+	auto colors = data.first.second;
+	InitializeVAO(&geo);
+	LoadGeometry(&geo, vertices.data(), colors.data(), colors.size());
+
+	//prepare transform
+	transformMatrix = data.second;
+
+	//prepare patch size
+	patchsize = 3;
+
+	
+}
+
+int main() {
+	GLFWwindow *window = InitializeGLFW();
+	GLuint programPart1 = InitializeShaders("part1");
+	if (window == NULL)
+		return -1;
+
+	preparePart1A();
+
+	while (!glfwWindowShouldClose(window)) {
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(program);
+		glBindVertexArray(geo.vertexArray);
+		glPatchParameteri(GL_PATCH_VERTICES, patchsize);
+
+		int transformLocation = glGetUniformLocation(program, "transform");
+		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(transformMatrix));
+
+		glDrawArrays(GL_PATCHES, 0, geo.elementCount);
 		glfwSwapBuffers(window);
-
 		glfwPollEvents();
 	}
 
-	// clean up allocated resources before exit
-	DestroyGeometry(&geometry);
-	glUseProgram(0);
-	glDeleteProgram(program);
-	glfwDestroyWindow(window);
 	glfwTerminate();
 
-	cout << "Goodbye!" << endl;
-	return 0;
 }
