@@ -166,16 +166,16 @@ int main() {
 		glDrawArrays(GL_PATCHES, 0, geo.elementCount);
 
 
-	
-		glUseProgram(noTess);
-		glBindVertexArray(geo.vertexArray);
-		glPatchParameteri(GL_PATCH_VERTICES, patchsize);
+		if (drawControls == true) {
 
-		transformLocation = glGetUniformLocation(noTess, "transform");
-		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(transformMatrix));
+			glUseProgram(noTess);
 
-		for (int i = 0; i < geo.elementCount; i += patchsize) {
-			glDrawArrays(GL_LINE_LOOP, i, patchsize);
+			transformLocation = glGetUniformLocation(noTess, "transform");
+			glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(transformMatrix));
+
+			for (int i = 0; i < geo.elementCount; i += patchsize) {
+				glDrawArrays(GL_LINE_LOOP, i, patchsize);
+			}
 		}
 		
 		
