@@ -7,9 +7,10 @@ using namespace glm;
 uint whichPart = 1;
 
 Geometry geo;
-GLuint program;
+GLuint program, noTess;
 glm::mat4 transformMatrix;
 GLuint patchsize;
+bool drawControls;
 
 GLuint InitializeShaders(string shaderName) {
 	string vertexName = shaderName + ".vert";
@@ -17,21 +18,30 @@ GLuint InitializeShaders(string shaderName) {
 	string tessControlName = shaderName + ".tesc";
 	string tessEvalName = shaderName + ".tese";
 
+	// compile shader source into shader objects
+	GLuint vertex, fragment, tcs, tes;
+
 	string vertexSource = LoadSource("shaders/" + vertexName);
 	string fragmentSource = LoadSource("shaders/" + fragmentName);
 	string tcsSource = LoadSource("shaders/" + tessControlName);
 	string tesSource = LoadSource("shaders/" + tessEvalName);
+	
+	vertex = CompileShader(GL_VERTEX_SHADER, vertexSource);
+	fragment = CompileShader(GL_FRAGMENT_SHADER, fragmentSource);
+	tcs = CompileShader(GL_TESS_CONTROL_SHADER, tcsSource);
+	tes = CompileShader(GL_TESS_EVALUATION_SHADER, tesSource);
+
 	if (vertexSource.empty() || fragmentSource.empty())
 		return 0;
 
-	// compile shader source into shader objects
-	GLuint vertex = CompileShader(GL_VERTEX_SHADER, vertexSource);
-	GLuint fragment = CompileShader(GL_FRAGMENT_SHADER, fragmentSource);
-	GLuint tcs = CompileShader(GL_TESS_CONTROL_SHADER, tcsSource);
-	GLuint tes = CompileShader(GL_TESS_EVALUATION_SHADER, tesSource);
-
-	// link shader program
-	GLuint program = LinkProgram(vertex, fragment, tcs, tes);
+	GLuint program;
+	if (tcsSource.empty() || tesSource.empty()) {
+		program = LinkProgram(vertex, fragment, 0, 0);
+	}
+	else {
+		program = LinkProgram(vertex, fragment, tcs, tes);
+	}
+	
 
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
@@ -110,31 +120,12 @@ GLFWwindow *InitializeGLFW()
 
 
 
-void RenderScenePH(Geometry *geometry, GLuint program)
-{
-	// clear screen to a dark grey colour
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	// bind our shader program and the vertex array object containing our
-	// scene geometry, then tell OpenGL to draw our geometry
-	glUseProgram(program);
-	glBindVertexArray(geometry->vertexArray);
-	
-
-	// reset state to default (no shader or geometry bound)
-	glBindVertexArray(0);
-	glUseProgram(0);
-
-	// check for an report any OpenGL errors
-	CheckGLErrors();
-}
-
 //configure part 1 to be rendered:
 //control points, program, transform, patch size
 void preparePart1A() {
 	//prepare the program
 	program = InitializeShaders("part1");
+	drawControls = true;
 
 	//prepare the geo
 	pair<pair<vector<vec2>, vector<vec3>>, glm::mat4> data = makePart1();
@@ -154,9 +145,10 @@ void preparePart1A() {
 
 int main() {
 	GLFWwindow *window = InitializeGLFW();
-	GLuint programPart1 = InitializeShaders("part1");
 	if (window == NULL)
 		return -1;
+
+	noTess = InitializeShaders("noTess");
 
 	preparePart1A();
 
@@ -172,6 +164,22 @@ int main() {
 		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(transformMatrix));
 
 		glDrawArrays(GL_PATCHES, 0, geo.elementCount);
+
+
+	
+		glUseProgram(noTess);
+		glBindVertexArray(geo.vertexArray);
+		glPatchParameteri(GL_PATCH_VERTICES, patchsize);
+
+		transformLocation = glGetUniformLocation(noTess, "transform");
+		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(transformMatrix));
+
+		for (int i = 0; i < geo.elementCount; i += patchsize) {
+			glDrawArrays(GL_LINE_LOOP, i, patchsize);
+		}
+		
+		
+		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
