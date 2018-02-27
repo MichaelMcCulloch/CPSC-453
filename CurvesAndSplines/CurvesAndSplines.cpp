@@ -10,7 +10,7 @@ Geometry geo;
 GLuint program, noTess;
 glm::mat4 transformMatrix;
 GLuint patchsize;
-bool drawControls;
+bool drawControls, isCubic;
 
 GLuint InitializeShaders(string shaderName) {
 	string vertexName = shaderName + ".vert";
@@ -55,8 +55,49 @@ GLuint InitializeShaders(string shaderName) {
 	return program;
 }
 
+pair<pair<vector<vec2>, vector<vec3>>, glm::mat4> makePart1B() {
+	vector<vec2> cubBezierVertices = {
+		vec2(1,1),
+		vec2(4,0),
+		vec2(6,2),
+		vec2(9,1),
+
+		vec2(8,2),
+		vec2(0,8),
+		vec2(0,-2),
+		vec2(8, 4),
+
+		vec2(5,3),
+		vec2(3,2),
+		vec2(3,3),
+		vec2(5,2),
+
+		vec2(3, 2.2),
+		vec2(3.5,2.7),
+		vec2(3.5,3.3),
+		vec2(3,3.8),
+
+		vec2(2.8,3.5),
+		vec2(2.4,3.8),
+		vec2(2.4,3.8),
+		vec2(2.8,3.5)
+	};
+
+	vec3 white = vec3(1.0, 1.0, 1.0);
+	vector<vec3> cubBezierColor;
+	for (int i = 0; i < cubBezierVertices.size(); i++) cubBezierColor.push_back(white);
+
+	glm::mat4 transform;
+	transform = glm::scale(transform, glm::vec3(0.2, 0.2, 1.0));
+	transform = glm::translate(transform, glm::vec3(-5, -2.5, 0));
+
+	auto controlPoints = std::make_pair(cubBezierVertices, cubBezierColor);
+	auto data = std::make_pair(controlPoints, transform);
+	return data;
+}
+
 //return the set of control points, and their colors, and a transform matrix which puts everything into view
-pair<pair<vector<vec2>, vector<vec3>>, glm::mat4> makePart1() {
+pair<pair<vector<vec2>, vector<vec3>>, glm::mat4> makePart1A() {
 	vector<vec2> quadBezierVertices = {
 		vec2(1, 1),
 		vec2(2, -1),
@@ -78,7 +119,7 @@ pair<pair<vector<vec2>, vector<vec3>>, glm::mat4> makePart1() {
 
 	vec3 white = vec3(1.0, 1.0, 1.0);
 	vector<vec3> quadBezierColor;
-	for (int i = 0; i < 12; i++) quadBezierColor.push_back(white);
+	for (int i = 0; i < quadBezierVertices.size(); i++) quadBezierColor.push_back(white);
 
 	glm::mat4 transform;
 	transform = glm::scale(transform, glm::vec3(0.5, 0.5, 1.0));
@@ -119,7 +160,26 @@ GLFWwindow *InitializeGLFW()
 }
 
 
+void preparePart1B() {
+	//prepare the program
+	program = InitializeShaders("part2");
+	drawControls = true;
 
+	//prepare the geo
+	pair<pair<vector<vec2>, vector<vec3>>, glm::mat4> data = makePart1B();
+	auto vertices = data.first.first;
+	auto colors = data.first.second;
+	InitializeVAO(&geo);
+	LoadGeometry(&geo, vertices.data(), colors.data(), colors.size());
+
+	//prepare transform
+	transformMatrix = data.second;
+
+	//prepare patch size
+	patchsize = 4;
+	isCubic = true;
+
+}
 //configure part 1 to be rendered:
 //control points, program, transform, patch size
 void preparePart1A() {
@@ -128,7 +188,7 @@ void preparePart1A() {
 	drawControls = true;
 
 	//prepare the geo
-	pair<pair<vector<vec2>, vector<vec3>>, glm::mat4> data = makePart1();
+	pair<pair<vector<vec2>, vector<vec3>>, glm::mat4> data = makePart1A();
 	auto vertices = data.first.first;
 	auto colors = data.first.second;
 	InitializeVAO(&geo);
@@ -139,7 +199,7 @@ void preparePart1A() {
 
 	//prepare patch size
 	patchsize = 3;
-
+	isCubic = false;
 	
 }
 
@@ -150,7 +210,7 @@ int main() {
 
 	noTess = InitializeShaders("noTess");
 
-	preparePart1A();
+	preparePart1B();
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -160,13 +220,17 @@ int main() {
 		glBindVertexArray(geo.vertexArray);
 		glPatchParameteri(GL_PATCH_VERTICES, patchsize);
 
+		
+		int cubicControlLocation = glGetUniformLocation(program, "isCubic");
+		glUniform1i(cubicControlLocation, isCubic);
+
 		int transformLocation = glGetUniformLocation(program, "transform");
 		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(transformMatrix));
 
 		glDrawArrays(GL_PATCHES, 0, geo.elementCount);
 
 
-		if (drawControls == true) {
+		if (drawControls) {
 
 			glUseProgram(noTess);
 
