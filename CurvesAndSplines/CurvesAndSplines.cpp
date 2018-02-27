@@ -11,6 +11,7 @@ GLuint program, noTess;
 glm::mat4 transformMatrix;
 GLuint patchsize;
 bool drawControls, isCubic;
+vector<MyGlyph> glyphsToRender;
 
 GLuint InitializeShaders(string shaderName) {
 	string vertexName = shaderName + ".vert";
@@ -127,6 +128,17 @@ pair<pair<vector<vec2>, vector<vec3>>, glm::mat4> makePart1A() {
 	auto controlPoints = std::make_pair(quadBezierVertices, quadBezierColor);
 	auto data = std::make_pair(controlPoints, transform);
 	return data;
+}
+
+bool preparePart2(string text) {
+	GlyphExtractor ge = GlyphExtractor();
+	if (!ge.LoadFontFile("Fonts/AlexBrush-Regular.ttf")) cout << "Could not load font FILE" << endl;
+	
+	for (char& c : text) {
+		MyGlyph next = ge.ExtractGlyph((int)c);
+
+	}
+	
 }
 
 GLFWwindow *InitializeGLFW()
