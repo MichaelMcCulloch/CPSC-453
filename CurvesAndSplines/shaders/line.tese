@@ -29,7 +29,7 @@ out vec3 Colour;
 #define PI 3.14159265359
 
 
-uniform bool isCubic;
+
 
 void main()
 {
@@ -42,23 +42,13 @@ void main()
 
 	vec2 p0 = gl_in[0].gl_Position.xy;
 	vec2 p1 = gl_in[1].gl_Position.xy;
-	vec2 p2 = gl_in[2].gl_Position.xy;
-
-	if (isCubic) {
-		
-		vec2 p3 = gl_in[3].gl_Position.xy;
-
-		vec2 position = bezier4(p0, p1, p2, p3, u);
-
-		gl_Position = vec4(position, 0, 1);
-	} else {
-
-		vec2 position = bezier3(p0, p1, p2, u);
-
-		gl_Position = vec4(position, 0, 1);
-	}
 	
+    
 
-	Colour = (1-u)*startColour + u*endColour;
+	vec2 position = bezier2(p0, p1, u);
+
+	gl_Position = vec4(position, 0, 1);
+
+	Colour = mix(startColour, endColour, u);
 
 }

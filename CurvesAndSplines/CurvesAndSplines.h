@@ -17,3 +17,6 @@
 #include "texture.h" 
 #include "GlyphExtractor.h"
 #include "OGLSupport.h"
+
+void ErrorCallback(int error, const char *description);
+void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);

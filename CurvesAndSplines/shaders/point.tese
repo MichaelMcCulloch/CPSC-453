@@ -41,13 +41,11 @@ void main()
 	vec3 endColour = teColour[1];
 
 	vec2 p0 = gl_in[0].gl_Position.xy;
-	vec2 p1 = gl_in[1].gl_Position.xy;
-	vec2 p2 = gl_in[2].gl_Position.xy;
 
-	vec2 position = bezier3(p0, p1, p2, u);
+	vec2 position = p0;
 
 	gl_Position = vec4(position, 0, 1);
 
-	Colour = (1-u)*startColour + u*endColour;
+	Colour = mix(startColour, endColour, u);
 
 }

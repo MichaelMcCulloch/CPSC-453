@@ -15,5 +15,5 @@ out vec4 FragmentColour;
 void main(void)
 {
     // write colour output without modification
-    FragmentColour = vec4(0, 0, 0.5, 0);
+    FragmentColour = vec4(Colour, 0);
 }
