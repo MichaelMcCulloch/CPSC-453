@@ -122,6 +122,7 @@
   <ItemGroup>
     <ClCompile Include="..\middleware\glad\src\glad.c" />
     <ClCompile Include="imagebuffer.cpp" />
+    <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Tracer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -132,7 +133,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imagebuffer.h" />
+    <ClInclude Include="Shape.h" />
     <ClInclude Include="Tracer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="scenes\scene1.txt" />
+    <Text Include="scenes\scene2.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

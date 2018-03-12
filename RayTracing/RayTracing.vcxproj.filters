@@ -30,6 +30,9 @@
     <ClCompile Include="imagebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Shape.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\ray.frag">
@@ -52,5 +55,16 @@
     <ClInclude Include="Tracer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Shape.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="scenes\scene1.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="scenes\scene2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
