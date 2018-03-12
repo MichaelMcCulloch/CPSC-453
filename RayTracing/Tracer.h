@@ -30,8 +30,8 @@ class Sphere : public Shape{
 
 };
 class Plane : public Shape {
-	vec3 normal;
-	vec3 point;
+	vec3 n;		//normal
+	vec3 p;		//point on the plane
 	Plane(vec3 i, vec3 j);
 
 	bool intersect(Ray ray, GLfloat & t);

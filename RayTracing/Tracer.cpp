@@ -5,7 +5,7 @@ bool Sphere::intersect(Ray ray, GLfloat &t) {
 	return false;
 }
 
-Plane::Plane(vec3 i, vec3 j) { normal = i, point = j; }
+Plane::Plane(vec3 i, vec3 j) { n = i, p = j; }
 bool Plane::intersect(Ray ray, GLfloat &t) {
 	return false;
 
