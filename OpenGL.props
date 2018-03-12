@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)middleware\glfw\include;$(SolutionDir)middleware\glad\include;$(SolutionDir)middleware\;$(SolutionDir)middleware\glm-0.9.8.2;$(SolutionDir)middleware\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)middleware\glfw\include;$(SolutionDir)middleware\glad\include;$(SolutionDir)middleware\;$(SolutionDir)middleware\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup>
