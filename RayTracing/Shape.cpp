@@ -1,7 +1,7 @@
 #include "Shape.h"
 
 Sphere::Sphere(vec3 i, float j) { c = i, r = j; }
-bool Sphere::intersect(const Ray ray, float &t, vec3 &col) {
+bool Sphere::intersect(const Ray ray, float &t) {
 	vec3 o = ray.o, d = ray.d, oc = o - c;
 	float a = dot(d, d);
 	float b = 2 * dot(d, oc);
@@ -17,7 +17,7 @@ bool Sphere::intersect(const Ray ray, float &t, vec3 &col) {
 }
 
 Plane::Plane(vec3 i, vec3 j) { n = i, p = j; }
-bool Plane::intersect(Ray ray, float &t, vec3 &col) {
+bool Plane::intersect(Ray ray, float &t) {
 	vec3 o = ray.o, q = p, d = ray.d;
 	float qn = dot(q, n),
 		on = dot(o, n),
@@ -34,12 +34,12 @@ Triangle::Triangle(vec3 i, vec3 j, vec3 k) {
 	vec3 norm = cross(m, n);
 	p = new Plane(norm, a);
 }
-bool Triangle::intersect(Ray ray, float &t, vec3 &col) {
+bool Triangle::intersect(Ray ray, float &t) {
 	mat3 corners = mat3(a, b, c);
 	vec3 d = ray.d;
 	mat3 inv = inverse(corners);
 	vec3 bary = inv * d;
 	if (bary.x < 0 || bary.y < 0 || bary.x < 0) return false;
 	//find intersection point on plane
-	return p->intersect(ray, t, col);
+	return p->intersect(ray, t);
 }
