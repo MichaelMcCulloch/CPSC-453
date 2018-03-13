@@ -18,7 +18,7 @@ private:
 class Shape {
 public:
 	virtual ~Shape() {};
-	virtual bool intersect(Ray ray, GLfloat &t) = 0;
+	virtual bool intersect(Ray ray, float &t, vec3 &col) = 0;
 };
 
 class Sphere : public Shape {
@@ -26,7 +26,7 @@ class Sphere : public Shape {
 	GLfloat r;	//radius
 public:
 	Sphere(vec3 i, float j);
-	bool intersect(const Ray ray, GLfloat & t);
+	bool intersect(const Ray ray, float & t, vec3 &col);
 
 };
 class Plane : public Shape {
@@ -34,7 +34,7 @@ class Plane : public Shape {
 	vec3 p;		//point on the plane
 public:
 	Plane(vec3 i, vec3 j);
-	bool intersect(Ray ray, GLfloat & t);
+	bool intersect(Ray ray, float & t, vec3 &col);
 
 };
 class Triangle : public Shape {
@@ -44,6 +44,6 @@ private:
 	Plane *p;
 public:
 	Triangle(vec3 i, vec3 j, vec3 k);
-	bool intersect(Ray ray, GLfloat & t);
+	bool intersect(Ray ray, float & t, vec3 &col);
 
 };
