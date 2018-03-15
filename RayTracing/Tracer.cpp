@@ -65,8 +65,9 @@ int main(int argc, char *argv[]){
 	glUseProgram(program);
 	glBindVertexArray(geometry.vertexArray);
 	float spheres[8] = { 
-		0, 0, -3.5, 0.5,
-		1, 1, -3.5, 0.5, };
+		-1, -0.5, -3.5, 0.5,
+		 1, -0.5, -3.5, 0.5
+	};
 	vec3 origin = vec3(0.0f, 0.0f, 0.0f);
 	GLuint spheresLoc = glGetUniformLocation(program, "spheres");
 	GLuint originLoc = glGetUniformLocation(program, "origin");
