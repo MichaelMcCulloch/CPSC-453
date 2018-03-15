@@ -1,6 +1,7 @@
 #include "Tracer.h"
+#include <chrono>
 
-#define DIM 1024
+#define DIM 1500
 
 
 int main(int argc, char *argv[]){
@@ -77,9 +78,6 @@ int main(int argc, char *argv[]){
 	while (!glfwWindowShouldClose(window))
 	{
 		// call function to draw our scene
-		// clear screen to a dark grey colour
-
-
 		glDrawArrays(GL_POINTS, 0, geometry.elementCount);
 
 		// check for an report any OpenGL errors
@@ -88,6 +86,8 @@ int main(int argc, char *argv[]){
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
+
+		
 	}
 
 	// reset state to default (no shader or geometry bound)
