@@ -4,7 +4,6 @@
 
 
 int main(int argc, char *argv[]){
-
 	// initialize the GLFW windowing system
 	if (!glfwInit()) {
 		cout << "ERROR: GLFW failed to initialize, TERMINATING" << endl;
@@ -64,6 +63,16 @@ int main(int argc, char *argv[]){
 	// scene geometry, then tell OpenGL to draw our geometry
 	glUseProgram(program);
 	glBindVertexArray(geometry.vertexArray);
+	float spheres[8] = { 
+		0, 0, -3.5, 0.5,
+		1, 1, -3.5, 0.5, };
+	vec3 origin = vec3(0.0f, 0.0f, 0.0f);
+	GLuint spheresLoc = glGetUniformLocation(program, "spheres");
+	GLuint originLoc = glGetUniformLocation(program, "origin");
+	glUniform4fv(spheresLoc, 2, spheres);
+	glUniform3fv(originLoc, 1, glm::value_ptr(origin));
+
+	
 	// run an event-triggered main loop
 	while (!glfwWindowShouldClose(window))
 	{
