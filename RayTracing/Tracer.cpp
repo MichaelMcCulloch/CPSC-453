@@ -1,8 +1,10 @@
 #include "Tracer.h"
-#include <chrono>
 
-#define DIM 1500
+#define DIM 1024
 
+struct Sphere {
+	vec4 center;
+};
 
 int main(int argc, char *argv[]){
 	// initialize the GLFW windowing system
@@ -15,7 +17,7 @@ int main(int argc, char *argv[]){
 	// attempt to create a window with an OpenGL 4.1 core profile context
 	GLFWwindow *window = 0;
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	
@@ -59,20 +61,32 @@ int main(int argc, char *argv[]){
 	if (!LoadGeometry(&geometry, vertices))
 		cout << "Failed to load geometry" << endl;
 
+	Sphere spheres[1] = {
+		vec4(-1, -0.5, -3.5, 1)
+	};
 
 	// bind our shader program and the vertex array object containing our
 	// scene geometry, then tell OpenGL to draw our geometry
 	glUseProgram(program);
 	glBindVertexArray(geometry.vertexArray);
-	float spheres[8] = { 
+	float spheres2[8] = { 
 		-1, -0.5, -3.5, 0.5,
 		 1, -0.5, -3.5, 0.5
 	};
 	vec3 origin = vec3(0.0f, 0.0f, 0.0f);
-	GLuint spheresLoc = glGetUniformLocation(program, "spheres");
+	//GLuint spheresLoc = glGetUniformLocation(program, "spheres");
 	GLuint originLoc = glGetUniformLocation(program, "origin");
-	glUniform4fv(spheresLoc, 2, spheres);
+	//glUniform4fv(spheresLoc, 2, spheres);
 	glUniform3fv(originLoc, 1, glm::value_ptr(origin));
+
+	vec4 center[2] = { vec4(-1, -0.5, -3.5, 0.5), vec4(1, -0.5, -3.5, 0.5) };
+
+	GLuint ubo;
+	glGenBuffers(1, &ubo);
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(vec4) * 2, center, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo);
 
 	
 	// run an event-triggered main loop

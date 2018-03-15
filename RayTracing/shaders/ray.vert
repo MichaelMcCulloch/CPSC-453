@@ -3,12 +3,20 @@
 layout(location = 0) in vec2 VertexPosition;
 out vec3 Colour;
 
-uniform vec3 origin;
+struct Sphere {
+	vec4 center;
+};
 
+layout(std140, binding = 1) uniform SphereData {
+	vec4 sphere[2];
+};
+
+uniform vec3 origin;
+/*
 uniform vec4 spheres[2]; // xyz = center; w = radius
 uniform mat3 triangles[2]; //each column will be a corner;
 uniform mat3x2 planes[2]; //first column = norm; second column = point on plane
-
+*/
 float fov = 60;
 const float pi = 3.1415926535897931;
 //calculate a direction vector from which px on screen we are rendering
@@ -49,9 +57,9 @@ vec3 directionFromPixel(vec2 pixel){
 float intersectSphere(vec3 ray, int i){
 	
 	vec3 d = ray;
-	vec3 center = spheres[i].xyz;
+	vec3 center = sphere[i].xyz;
 	vec3 oc = origin - center;
-	float r = spheres[i].w;
+	float r = sphere[i].w;
 
 	float a = dot(d,d);
 	float b = 2 * dot(d, oc);
