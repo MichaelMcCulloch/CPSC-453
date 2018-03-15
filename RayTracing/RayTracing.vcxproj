@@ -121,18 +121,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\middleware\glad\src\glad.c" />
+    <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="imagebuffer.cpp" />
+    <ClCompile Include="OGLSupport.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Tracer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\ray.frag" />
-    <None Include="shaders\ray.tesc" />
-    <None Include="shaders\ray.tese" />
     <None Include="shaders\ray.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Geometry.h" />
     <ClInclude Include="imagebuffer.h" />
+    <ClInclude Include="OGLSupport.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Tracer.h" />
   </ItemGroup>

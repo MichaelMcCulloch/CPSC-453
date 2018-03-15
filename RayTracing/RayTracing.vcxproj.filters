@@ -33,15 +33,15 @@
     <ClCompile Include="Shape.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OGLSupport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\ray.frag">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
-    <None Include="shaders\ray.tesc">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
-    <None Include="shaders\ray.tese">
       <Filter>Source Files\Shaders</Filter>
     </None>
     <None Include="shaders\ray.vert">
@@ -56,6 +56,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Shape.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OGLSupport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
