@@ -111,31 +111,18 @@ int main(int argc, char *argv[]){
 //Generate vertex points on the screen;
 vector<vec2> generatePoint() {
 	vector<vec2> screen = {};
-	
-	for (int y = 0; y < DIM; y++) {
-		for (int x = 0; x < DIM; x++) {
-			screen.push_back(vec2((float)y*2 / (float)DIM, (float)x*2 / (float)DIM)  + vec2(-1, -1));
+	float d = (float)DIM;
+	for (float y = 0; y < d; y++) {
+		for (float x = 0; x < d; x++) {
+			float yPos = 2 * (y + 0.5) / d;
+			float xPos = 2 * (x + 0.5) / d;
+			screen.push_back(vec2(xPos, yPos)  + vec2(-1, -1));
 		}
 	}
 	return screen;
 
 }
 
-//Generate normalized Direction vectors
-vector<vec3> generateRays(int d, float fov) {
-
-	float z = d / (2 * tan(fov / 2.0));
-	vec3 topLeft = vec3((float)d / -2.0 + 0.5f, (float)d/2.0 - 0.5f, z);
-
-
-	vector<vec3> dirs = {};
-	for (int i = 0; i < d; i++) {
-		for (int j = 0; j < d; j++) {
-			dirs.push_back(normalize(topLeft + vec3(i, -j, 0)));
-		}
-	}
-	return dirs;
-}
 
 // --------------------------------------------------------------------------
 // GLFW callback functions
