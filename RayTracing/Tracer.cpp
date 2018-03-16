@@ -2,9 +2,8 @@
 
 #define DIM 1024
 
-struct Sphere {
-	vec4 center;
-};
+using namespace std;
+
 
 int main(int argc, char *argv[]){
 	// initialize the GLFW windowing system
@@ -61,33 +60,47 @@ int main(int argc, char *argv[]){
 	if (!LoadGeometry(&geometry, vertices))
 		cout << "Failed to load geometry" << endl;
 
-	Sphere spheres[1] = {
-		vec4(-1, -0.5, -3.5, 1)
-	};
 
 	// bind our shader program and the vertex array object containing our
 	// scene geometry, then tell OpenGL to draw our geometry
 	glUseProgram(program);
 	glBindVertexArray(geometry.vertexArray);
-	float spheres2[8] = { 
-		-1, -0.5, -3.5, 0.5,
-		 1, -0.5, -3.5, 0.5
-	};
+
+	//set the origin of our scene, so we can move around in it
 	vec3 origin = vec3(0.0f, 0.0f, 0.0f);
-	//GLuint spheresLoc = glGetUniformLocation(program, "spheres");
 	GLuint originLoc = glGetUniformLocation(program, "origin");
-	//glUniform4fv(spheresLoc, 2, spheres);
 	glUniform3fv(originLoc, 1, glm::value_ptr(origin));
+	
+	//test data
+	vector<Triangle> t = {};
+	
+	Triangle t1 = {
+		vec4(2.75, -2.75, -5,0),
+		vec4(2.75, -2.75, -10.5,0), 
+		vec4(-2.75, -2.75, -10.5,0),
+		vec4(1,1,1,0)
+	};
+	Triangle t2 = {
+		vec4(-2.75, -2.75, -5, 0),
+		vec4(2.75, -2.75, -5, 0),
+		vec4(-2.75, -2.75, -10.5, 0),
+		vec4(1,1,1,0)
+	};
+	t.push_back(t1);
+	t.push_back(t2);
+	
+	vector<Plane> p = {};
+	Plane p1 = { vec4(0, 0, 1, 0), vec4(0, 0, -10.5, 0), vec4(0,0,1,0) };
+	p.push_back(p1);
 
-	vec4 center[2] = { vec4(-1, -0.5, -3.5, 0.5), vec4(1, -0.5, -3.5, 0.5) };
-
-	GLuint ubo;
-	glGenBuffers(1, &ubo);
-	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(vec4) * 2, center, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo);
-
+	vector<Sphere> s = {};
+	Sphere s1 = { vec4(0, -1, -2, 0), vec4(1, 0, 0, 1), 0.5f };
+	Sphere s2 = { vec4(0, -1, -3.5, 0), vec4(0, 1, 0, 1), 0.5f };
+	s.push_back(s1);
+	s.push_back(s2);
+	
+	LoadShapes(s, t, p, program);
+	
 	
 	// run an event-triggered main loop
 	while (!glfwWindowShouldClose(window))
@@ -121,6 +134,36 @@ int main(int argc, char *argv[]){
 
 }
 
+bool LoadShapes(vector<Sphere> spheres, vector<Triangle> triangle, vector<Plane> planes, GLuint program) {
+	GLuint sphereUBO, triangleUBO, planeUBO;
+	glGenBuffers(1, &sphereUBO);
+	glGenBuffers(1, &triangleUBO);
+	glGenBuffers(1, &planeUBO);
+	
+	glBindBuffer(GL_UNIFORM_BUFFER, sphereUBO);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Sphere) * spheres.size(), spheres.data(), GL_DYNAMIC_DRAW);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, triangleUBO);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Triangle) * triangle.size(), triangle.data(), GL_DYNAMIC_DRAW);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, planeUBO);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Plane) * planes.size(), planes.data(), GL_DYNAMIC_DRAW);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, sphereUBO);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 2, triangleUBO);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 3, planeUBO);
+
+	GLuint sphereCountIndex = glGetUniformLocation(program, "numSpheres");
+	GLuint triangleCountIndex = glGetUniformLocation(program, "numTriangles");
+	GLuint planeCountIndex = glGetUniformLocation(program, "numPlanes");
+	glUniform1i(sphereCountIndex, spheres.size());
+	glUniform1i(triangleCountIndex, triangle.size());
+	glUniform1i(planeCountIndex, planes.size());
+
+	return true;
+}
 
 //Generate vertex points on the screen;
 vector<vec2> generatePoint() {

@@ -5,18 +5,41 @@ out vec3 Colour;
 
 struct Sphere {
 	vec4 center;
+	vec4 color;
+	float radius;
+	
+};
+
+struct Plane {
+	vec4 norm;
+	vec4 point;
+	vec4 color;
+};
+
+struct Triangle{
+	vec4 A;
+	vec4 B;
+	vec4 C;
+	vec4 color;
 };
 
 layout(std140, binding = 1) uniform SphereData {
-	vec4 sphere[2];
+	Sphere sphere[5];
+};
+layout(std140, binding = 2) uniform TriangleData {
+	Triangle triangle[5];
+};
+layout(std140, binding = 3) uniform PlaneData {
+	Plane plane[5];
 };
 
+//for iterating over
+uniform int numSpheres; 
+uniform int numTriangles;
+uniform int numPlanes;
+
 uniform vec3 origin;
-/*
-uniform vec4 spheres[2]; // xyz = center; w = radius
-uniform mat3 triangles[2]; //each column will be a corner;
-uniform mat3x2 planes[2]; //first column = norm; second column = point on plane
-*/
+
 float fov = 60;
 const float pi = 3.1415926535897931;
 //calculate a direction vector from which px on screen we are rendering
@@ -24,8 +47,8 @@ vec3 directionFromPixel(vec2 pixel);
 
 //determine intersection point for ray, and selected shape in selected shape index
 float intersectSphere(vec3, int);
-float intersectPlane(vec3 ray, int plane);
-float intersectTriangle(vec3 ray, int triangle);
+float intersectPlane(vec3, int );
+float intersectTriangle(vec3, int);
 
 void main(){
 
@@ -34,14 +57,35 @@ void main(){
 	vec3 dir = directionFromPixel(VertexPosition);
 	vec3 col;
 	float min = -1;
-	for (int i = 0; i < 2; i++){ //iterate over spheres
+	vec3 chosenColor = vec3(0,0,0);
+	for (int i = 0; i < numSpheres; i++){ //iterate over spheres
 		float t = intersectSphere(dir, i);
 		if (t < 0) continue;
-		if (min < 0) min = t; //if min has not been set
-		else if ( t < min) min = t; //if min has been set
+		if (min < 0 || t < min){ 
+			min = t; //if min has not been set
+			chosenColor = sphere[i].color.rgb;
+		}
 	}
 
-	if ( min > 0) col = vec3(1,1,1);
+	for (int i = 0; i < numPlanes; i++){ //iterate over planes
+		float t = intersectPlane(dir, i);
+		if (t < 0) continue;
+		if (min < 0 || t < min){ 
+			min = t; //if min has not been set
+			chosenColor = plane[i].color.rgb;
+		}
+	}
+
+	for (int i = 0; i < numTriangles; i++){ //iterate over triangles
+		float t = intersectTriangle(dir, i);
+		if (t < 0) continue;
+		if (min < 0 || t < min){ 
+			min = t; //if min has not been set
+			chosenColor = triangle[i].color.rgb;
+		}
+	}
+
+	if ( min > 0) col = chosenColor;
 	else col = vec3(0,0,0);
 	
 	Colour = col;
@@ -57,9 +101,9 @@ vec3 directionFromPixel(vec2 pixel){
 float intersectSphere(vec3 ray, int i){
 	
 	vec3 d = ray;
-	vec3 center = sphere[i].xyz;
+	vec3 center = sphere[i].center.xyz;
 	vec3 oc = origin - center;
-	float r = sphere[i].w;
+	float r = sphere[i].radius;
 
 	float a = dot(d,d);
 	float b = 2 * dot(d, oc);
@@ -76,4 +120,51 @@ float intersectSphere(vec3 ray, int i){
 	} else {
 		return t1;
 	}
+}
+
+float intersectPlane(vec3 ray, int i){
+	vec3 o = origin;
+	vec3 d = ray;
+	vec3 q = plane[i].point.xyz;
+	vec3 n = plane[i].norm.xyz;
+
+	float qn = dot(q,n);
+	float on = dot(o,n);
+    float dn = dot(d,n);
+	float t = (qn - on) / dn;
+	return t;
+}
+
+float intersectTriangle(vec3 ray, int i){
+
+	
+	vec3 A = triangle[i].A.xyz;
+	vec3 B = triangle[i].B.xyz;
+	vec3 C = triangle[i].C.xyz;
+
+	mat3 corn = mat3(A,B,C);
+
+	mat3 inv = inverse(corn);
+	vec3 bary = inv * ray;
+
+	//check that ray is in triangle
+	if (bary.x < 0 || bary.y < 0 || bary.x < 0) return -1;
+
+	vec3 M = C - A;
+	vec3 N = B - A;
+
+	vec3 norm = cross(M, N);
+
+	//same plane calc
+	vec3 o = origin;
+	vec3 d = ray;
+	vec3 q = A;
+	vec3 n = norm;
+
+	float qn = dot(q,n);
+	float on = dot(o,n);
+    float dn = dot(d,n);
+	float t = (qn - on) / dn;
+	return t;
+
 }
