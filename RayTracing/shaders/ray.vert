@@ -50,7 +50,7 @@ uniform int numLights;
 
 uniform vec3 cameraOrigin;
 
-float fov = 30;
+uniform float fov;
 const float pi = 3.1415926535897931;
 
 //the tracing operation; returns pixel color
@@ -77,7 +77,8 @@ vec3 trace(vec3 dir, int depth){
 	 * find the nearest instersection point:
 	 	For each object, find it's intersection point, take t = minimum
 	 */
-	vec3 col;
+	
+
 	float min = -1;
 	vec3 chosenColor = vec3(0,0,0);
 	
@@ -105,6 +106,8 @@ vec3 trace(vec3 dir, int depth){
 		}
 	}
 
+
+	//calculate lighting
 	vec3 p = cameraOrigin + min * dir;
 	for (int l = 0; l < numLights; l++){
 		vec3 c = light[l].center.xyz;
@@ -144,20 +147,17 @@ float intersectSphere(vec3 origin, vec3 ray, int i){
 	float r = sphere[i].radius;
 
 	
-	float b = 2 * dot(d, oc);
-	float c = dot(oc, oc) - pow(r, 2);
+	float b = 2*dot(d, oc);
+	float c = dot(oc, oc) - r*r;
 	
-	float disc = pow(b, 2) - 4 * c;
-	if (disc < 0.0001) return -1;
+	float disc = b*b - 4*c;
+	if (disc < 0) return -1;
 
 	disc = sqrt(disc);
-	float t0 = -b - disc;
-	float t1 = -b + disc;
-	if (t0 < t1) {
-		return t0;
-	} else {
-		return t1;
-	}
+	float t0 = -b/2 - disc;
+	float t1 = -b/2 + disc;
+
+	return (t0 < t1) ? t0 : t1;
 }
 
 float intersectPlane(vec3 origin, vec3 ray, int i){

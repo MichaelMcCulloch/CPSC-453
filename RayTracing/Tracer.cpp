@@ -68,35 +68,37 @@ int main(int argc, char *argv[])
 	glBindVertexArray(geometry.vertexArray);
 
 	//set the origin of our scene, so we can move around in it
-	vec3 origin = vec3(0.0f, 0.0f, 5.0f);
+	vec3 origin = vec3(0.0f, 2.0f, 5.0f);
 	GLuint originLoc = glGetUniformLocation(program, "cameraOrigin");
+	GLuint fov = glGetUniformLocation(program, "fov");
 	glUniform3fv(originLoc, 1, glm::value_ptr(origin));
+	glUniform1f(fov, 30);
 
 	//test data
 	vector<Triangle> t = {};
 	Triangle t1 = {
-		vec4(2.75, -2.75, -5, 0),
-		vec4(2.75, -2.75, -10.5, 0),
-		vec4(-2.75, -2.75, -10.5, 0),
+		vec4(2.75, 0, -5, 0),
+		vec4(2.75, 0, -10.5, 0),
+		vec4(-2.75, 0, -10.5, 0),
 		vec4(1, 1, 1, 0)};
 	Triangle t2 = {
-		vec4(-2.75, -2.75, -5, 0),
-		vec4(2.75, -2.75, -5, 0),
-		vec4(-2.75, -2.75, -10.5, 0),
+		vec4(-2.75, 0, -5, 0),
+		vec4(2.75, 0, -5, 0),
+		vec4(-2.75, 0, -10.5, 0),
 		vec4(1, 1, 1, 0)};
 	t.push_back(t1);
 	t.push_back(t2);
 
 	vector<Plane> p = {};
-	Plane p1 = {vec4(0, 0, 1, 0), vec4(10, 0, -100.5, 0), vec4(0, 0, 1, 0)};
+	Plane p1 = {vec4(0, 0, 1, 0), vec4(0, 0, -100.5, 0), vec4(0, 0, 1, 0)};
 	p.push_back(p1);
 
 	vector<Sphere> s = {};
-	Sphere s1 = {vec4(0, -1, -7, 0), vec4(1, 0, 0, 1), 1};
+	Sphere s1 = {vec4(0, 2, -7.75, 0), vec4(1, 0, 0, 1), 1};
 	s.push_back(s1);
 
 	vector<Light> l = {};
-	Light l1 = {vec4(0.5, 2.5, -5, 0), vec4(1, 1, 1, 1), 0.5f, 1.0f};
+	Light l1 = {vec4(3, 3, -7.75, 0), vec4(1, 1, 1, 1), 0.5f, 1.0f};
 	l.push_back(l1);
 
 	LoadShapes(s, t, p, l, program);
@@ -106,14 +108,13 @@ int main(int argc, char *argv[])
 	while (!glfwWindowShouldClose(window))
 	{
 
-		vec3 origin = vec3(0, yoff, 0);
-		GLuint originLoc = glGetUniformLocation(program, "cameraOrigin");
+		vec3 origin = vec3(0, 2, 0);
 		glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 		// call function to draw our scene
 		glDrawArrays(GL_POINTS, 0, geometry.elementCount);
 
-		yoff -= 0.01;
-		if (yoff < -3) yoff = 3.0f;
+		yoff += 0.001;
+		if (yoff > 6) yoff = 0;
 
 		// check for an report any OpenGL errors
 		CheckGLErrors();
