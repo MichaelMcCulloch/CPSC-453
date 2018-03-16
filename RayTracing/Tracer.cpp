@@ -89,15 +89,11 @@ int main(int argc, char *argv[])
 
 	vector<Plane> p = {};
 	Plane p1 = {vec4(0, 0, 1, 0), vec4(0, 0, -10.5, 0), vec4(0, 0, 1, 0)};
-	Plane p2 = {vec4(0, 1, 0, 0), vec4(0, -2.75, 0, 0), vec4(1, 1, 1, 0)};
-	Plane p3 = { vec4(1, 0, 0, 0), vec4(-2.75, 0, 0, 0), vec4(1, 1, 1, 0) };
-	//p.push_back(p1);
-	//p.push_back(p2);
-	//p.push_back(p3);
+	p.push_back(p1);
 
 	vector<Sphere> s = {};
-	Sphere s1 = {vec4(0, 0, -6, 0), vec4(1, 0, 0, 1), 0.5};
-	Sphere s2 = { vec4(0, 0, -4, 0), vec4(1, 0, 0, 1), 0.5 };
+	Sphere s1 = {vec4(-2, 0, -6, 0), vec4(1, 0, 0, 1), 0.5};
+	Sphere s2 = { vec4(2, 0, -6, 0), vec4(1, 0, 0, 1), 0.5 };
 	s.push_back(s1);
 	s.push_back(s2);
 
@@ -112,7 +108,7 @@ int main(int argc, char *argv[])
 	while (!glfwWindowShouldClose(window))
 	{
 
-		vec3 origin = vec3(yoff, yoff, 0);
+		vec3 origin = vec3(0, yoff, 0);
 		GLuint originLoc = glGetUniformLocation(program, "cameraOrigin");
 		glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 		// call function to draw our scene

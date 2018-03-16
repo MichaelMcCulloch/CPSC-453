@@ -69,7 +69,6 @@ void main(){
 
 	vec3 dir = directionFromPixel(VertexPosition);
 	
-	
 	Colour = trace(dir, 10);
 }
 
@@ -110,6 +109,7 @@ vec3 trace(vec3 dir, int depth){
 
 
 
+
 	if (min < 0) return vec3(0,0,0);
 
 	return chosenColor;
@@ -130,12 +130,12 @@ float intersectSphere(vec3 origin, vec3 ray, int i){
 	vec3 oc = origin - center;
 	float r = sphere[i].radius;
 
-	float a = dot(d,d);
+	
 	float b = 2 * dot(d, oc);
 	float c = dot(oc, oc) - pow(r, 2);
 	
 	float disc = pow(b, 2) - 4 * c;
-	if (disc < 0) return -1;
+	if (disc < 0.0001) return -1;
 
 	disc = sqrt(disc);
 	float t0 = -b - disc;
@@ -161,8 +161,6 @@ float intersectPlane(vec3 origin, vec3 ray, int i){
 }
 
 float intersectTriangle(vec3 origin, vec3 ray, int i){
-
-	
 
 	vec3 A = triangle[i].A.xyz;
 	vec3 B = triangle[i].B.xyz;
