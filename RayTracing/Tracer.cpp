@@ -88,17 +88,15 @@ int main(int argc, char *argv[])
 	t.push_back(t2);
 
 	vector<Plane> p = {};
-	Plane p1 = {vec4(0, 0, 1, 0), vec4(0, 0, -10.5, 0), vec4(0, 0, 1, 0)};
+	Plane p1 = {vec4(0, 0, 1, 0), vec4(10, 0, -100.5, 0), vec4(0, 0, 1, 0)};
 	p.push_back(p1);
 
 	vector<Sphere> s = {};
-	Sphere s1 = {vec4(-2, 0, -6, 0), vec4(1, 0, 0, 1), 0.5};
-	Sphere s2 = { vec4(2, 0, -6, 0), vec4(1, 0, 0, 1), 0.5 };
+	Sphere s1 = {vec4(0, -1, -7, 0), vec4(1, 0, 0, 1), 1};
 	s.push_back(s1);
-	s.push_back(s2);
 
 	vector<Light> l = {};
-	Light l1 = {vec4(0, -1, -2, 0), vec4(1, 1, 1, 1), 0.5f, 1.0f};
+	Light l1 = {vec4(0.5, 2.5, -5, 0), vec4(1, 1, 1, 1), 0.5f, 1.0f};
 	l.push_back(l1);
 
 	LoadShapes(s, t, p, l, program);

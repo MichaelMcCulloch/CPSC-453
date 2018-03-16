@@ -89,7 +89,6 @@ vec3 trace(vec3 dir, int depth){
 		}
 	}
 
-
 	for (int i = 0; i < numPlanes; i++){ //iterate over planes
 		float t = intersectPlane(cameraOrigin, dir, i);
 		if (t > 0 && (min < 0 || t < min)){ 
@@ -106,6 +105,20 @@ vec3 trace(vec3 dir, int depth){
 		}
 	}
 
+	vec3 p = cameraOrigin + min * dir;
+	for (int l = 0; l < numLights; l++){
+		vec3 c = light[l].center.xyz;
+		float dist = sqrt(pow(c.x - p.x, 2) + pow(c.y - p.y, 2) + pow(c.z - p.z, 2));
+		vec3 newDir = normalize(c-p);
+
+		for (int i = 0; i < numSpheres; i++){ //iterate over spheres
+			float t = intersectSphere(p, newDir, i);
+			if (t > 0 && t < dist){ 
+				chosenColor = vec3(0,0,0);
+			}
+		}
+
+	}
 
 
 
