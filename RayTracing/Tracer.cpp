@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 	while (!glfwWindowShouldClose(window))
 	{
 
-		vec3 origin = vec3(0, 0, 0);
+		vec3 origin = vec3(0, yoff-3, 0);
 		glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 		// call function to draw our scene
 		glDrawArrays(GL_POINTS, 0, geometry.elementCount);

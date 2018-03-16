@@ -153,8 +153,8 @@ float intersectSphere(vec3 origin, vec3 ray, int i){
 	if (disc < 0) return -1;
 
 	disc = sqrt(disc);
-	float t0 = -b/2 - disc;
-	float t1 = -b/2 + disc;
+	float t0 = -(b/2 - disc)/2;
+	float t1 = -(b/2 + disc)/2;
 
 	return (t0 < t1) ? t0 : t1;
 }
