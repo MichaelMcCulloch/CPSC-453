@@ -124,7 +124,6 @@
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="imagebuffer.cpp" />
     <ClCompile Include="OGLSupport.cpp" />
-    <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Tracer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -135,7 +134,6 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="imagebuffer.h" />
     <ClInclude Include="OGLSupport.h" />
-    <ClInclude Include="Shape.h" />
     <ClInclude Include="Tracer.h" />
   </ItemGroup>
   <ItemGroup>
