@@ -50,7 +50,7 @@ uniform int numLights;
 
 uniform vec3 cameraOrigin;
 
-float fov = 60;
+float fov = 30;
 const float pi = 3.1415926535897931;
 
 //the tracing operation; returns pixel color
@@ -81,19 +81,19 @@ vec3 trace(vec3 dir, int depth){
 	vec3 col;
 	float min = -1;
 	vec3 chosenColor = vec3(0,0,0);
+	
 	for (int i = 0; i < numSpheres; i++){ //iterate over spheres
 		float t = intersectSphere(cameraOrigin, dir, i);
-		if (t < 0) continue;
-		if (min < 0 || t < min){ 
+		if (t > 0 && (min < 0 || t < min)){ 
 			min = t; //if min has not been set
 			chosenColor = sphere[i].color.rgb;
 		}
 	}
 
+
 	for (int i = 0; i < numPlanes; i++){ //iterate over planes
 		float t = intersectPlane(cameraOrigin, dir, i);
-		if (t < 0) continue;
-		if (min < 0 || t < min){ 
+		if (t > 0 && (min < 0 || t < min)){ 
 			min = t; //if min has not been set
 			chosenColor = plane[i].color.rgb;
 		}
@@ -101,26 +101,17 @@ vec3 trace(vec3 dir, int depth){
 
 	for (int i = 0; i < numTriangles; i++){ //iterate over triangles
 		float t = intersectTriangle(cameraOrigin, dir, i);
-		if (t < 0) continue;
-		if (min < 0 || t < min){ 
+		if (t > 0 && (min < 0 || t < min)){ 
 			min = t; //if min has not been set
 			chosenColor = triangle[i].color.rgb;
 		}
 	}
 
 
-	if (min < 0) return vec3(0,0,0);
-/*
-	//calc shadow is there an intersection point on this pixel r = o + td
-	vec3 p = cameraOrigin +  min * dir;
-	for (int l = 0; l < numLights; l++){
-		vec3 line = normalize(light[l].center.xyz - p);
 
-		for (int s = 0; s < numSpheres; s++){
-			if (intersectSphere(p, line, s) > 0) chosenColor = vec3(0,0,0);
-		}
-	}
-*/
+
+	if (min < 0) return vec3(0,0,0);
+
 	return chosenColor;
 	
 }
@@ -172,20 +163,29 @@ float intersectPlane(vec3 origin, vec3 ray, int i){
 float intersectTriangle(vec3 origin, vec3 ray, int i){
 
 	
+
 	vec3 A = triangle[i].A.xyz;
 	vec3 B = triangle[i].B.xyz;
 	vec3 C = triangle[i].C.xyz;
 
-	mat3 corn = mat3(A,B,C);
-
-	mat3 inv = inverse(corn);
-	vec3 bary = inv * ray;
-
-	//check that ray is in triangle
-	if (bary.x < 0 || bary.y < 0 || bary.x < 0) return -1;
-
-	vec3 M = C - A;
 	vec3 N = B - A;
+	vec3 M = C - A;
+	
+	vec3 pvec = cross(ray, M);
+	float det = dot(N, pvec);
+
+	float invDet = 1/det;
+
+	vec3 tvec = origin - A;
+	
+	float u = dot(tvec, pvec) * invDet;
+	if ( u < 0 || u > 1) return -1;
+
+	vec3 qvec = cross(tvec, N);
+	float v = dot(ray, qvec) * invDet;
+	if (v < 0 || u + v > 1) return -1;
+
+	float t = dot(M, qvec) * invDet;
 
 	vec3 norm = cross(M, N);
 
@@ -198,7 +198,7 @@ float intersectTriangle(vec3 origin, vec3 ray, int i){
 	float qn = dot(q,n);
 	float on = dot(o,n);
     float dn = dot(d,n);
-	float t = (qn - on) / dn;
-	return t;
+	float p = (qn - on) / dn;
+	return p;
 
 }
