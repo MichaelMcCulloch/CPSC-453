@@ -7,7 +7,6 @@ struct Sphere {
 	vec4 center;
 	vec4 color;
 	float radius;
-	
 };
 
 struct Plane {
@@ -23,43 +22,67 @@ struct Triangle{
 	vec4 color;
 };
 
+struct Light {
+	vec4 center;
+	vec4 color;
+	float radius;
+	float intensity;
+};
+
 layout(std140, binding = 1) uniform SphereData {
-	Sphere sphere[5];
+	Sphere sphere[50];
 };
 layout(std140, binding = 2) uniform TriangleData {
-	Triangle triangle[5];
+	Triangle triangle[50];
 };
 layout(std140, binding = 3) uniform PlaneData {
-	Plane plane[5];
+	Plane plane[50];
+};
+layout(std140, binding = 4) uniform LightData {
+	Light light[50];
 };
 
 //for iterating over
 uniform int numSpheres; 
 uniform int numTriangles;
 uniform int numPlanes;
+uniform int numLights;
 
-uniform vec3 origin;
+uniform vec3 cameraOrigin;
 
 float fov = 60;
 const float pi = 3.1415926535897931;
+
+//the tracing operation; returns pixel color
+vec3 trace(vec3 ray, int depth);
 //calculate a direction vector from which px on screen we are rendering
 vec3 directionFromPixel(vec2 pixel);
 
 //determine intersection point for ray, and selected shape in selected shape index
-float intersectSphere(vec3, int);
-float intersectPlane(vec3, int );
-float intersectTriangle(vec3, int);
+float intersectSphere(vec3, vec3, int);
+float intersectPlane(vec3, vec3, int );
+float intersectTriangle(vec3, vec3, int);
 
 void main(){
 
 	gl_Position = vec4(VertexPosition, 0.0, 1.0);
 
 	vec3 dir = directionFromPixel(VertexPosition);
+	
+	
+	Colour = trace(dir, 10);
+}
+
+vec3 trace(vec3 dir, int depth){
+	/**
+	 * find the nearest instersection point:
+	 	For each object, find it's intersection point, take t = minimum
+	 */
 	vec3 col;
 	float min = -1;
 	vec3 chosenColor = vec3(0,0,0);
 	for (int i = 0; i < numSpheres; i++){ //iterate over spheres
-		float t = intersectSphere(dir, i);
+		float t = intersectSphere(cameraOrigin, dir, i);
 		if (t < 0) continue;
 		if (min < 0 || t < min){ 
 			min = t; //if min has not been set
@@ -68,7 +91,7 @@ void main(){
 	}
 
 	for (int i = 0; i < numPlanes; i++){ //iterate over planes
-		float t = intersectPlane(dir, i);
+		float t = intersectPlane(cameraOrigin, dir, i);
 		if (t < 0) continue;
 		if (min < 0 || t < min){ 
 			min = t; //if min has not been set
@@ -77,7 +100,7 @@ void main(){
 	}
 
 	for (int i = 0; i < numTriangles; i++){ //iterate over triangles
-		float t = intersectTriangle(dir, i);
+		float t = intersectTriangle(cameraOrigin, dir, i);
 		if (t < 0) continue;
 		if (min < 0 || t < min){ 
 			min = t; //if min has not been set
@@ -85,10 +108,21 @@ void main(){
 		}
 	}
 
-	if ( min > 0) col = chosenColor;
-	else col = vec3(0,0,0);
+
+	if (min < 0) return vec3(0,0,0);
+/*
+	//calc shadow is there an intersection point on this pixel r = o + td
+	vec3 p = cameraOrigin +  min * dir;
+	for (int l = 0; l < numLights; l++){
+		vec3 line = normalize(light[l].center.xyz - p);
+
+		for (int s = 0; s < numSpheres; s++){
+			if (intersectSphere(p, line, s) > 0) chosenColor = vec3(0,0,0);
+		}
+	}
+*/
+	return chosenColor;
 	
-	Colour = col;
 }
 
 vec3 directionFromPixel(vec2 pixel){
@@ -98,7 +132,7 @@ vec3 directionFromPixel(vec2 pixel){
 	return normalize(dir);
 }
 
-float intersectSphere(vec3 ray, int i){
+float intersectSphere(vec3 origin, vec3 ray, int i){
 	
 	vec3 d = ray;
 	vec3 center = sphere[i].center.xyz;
@@ -122,7 +156,7 @@ float intersectSphere(vec3 ray, int i){
 	}
 }
 
-float intersectPlane(vec3 ray, int i){
+float intersectPlane(vec3 origin, vec3 ray, int i){
 	vec3 o = origin;
 	vec3 d = ray;
 	vec3 q = plane[i].point.xyz;
@@ -135,7 +169,7 @@ float intersectPlane(vec3 ray, int i){
 	return t;
 }
 
-float intersectTriangle(vec3 ray, int i){
+float intersectTriangle(vec3 origin, vec3 ray, int i){
 
 	
 	vec3 A = triangle[i].A.xyz;

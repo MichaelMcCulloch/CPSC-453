@@ -8,7 +8,7 @@ struct Sphere {
 	vec4 center;
 	vec4 color;
 	float radius;
-	float pad1;
+	float pad1; //align to 4-float;
 	float pad2;
 	float pad3;
 };
@@ -26,12 +26,21 @@ struct Triangle {
 	vec4 color;
 };
 
+struct Light {
+	vec4 center;
+	vec4 color;
+	float radius; //radius = 0 -> point light source
+	float intensity;
+	float padd01;
+	float padd02;
+};
+
 using namespace std;
 
 vector<vec2> generatePoint();
 
 //load shapes into uniform buffer objects
-bool LoadShapes(vector<Sphere> spheres, vector<Triangle> triangle, vector<Plane> planes, GLuint program);
+void LoadShapes(vector<Sphere> spheres, vector<Triangle> triangle, vector<Plane> planes, vector<Light> lights, GLuint program);
 //GLFW Callbacks
 void ErrorCallback(int error, const char *description);
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);

@@ -73,7 +73,6 @@ int main(int argc, char *argv[]){
 	
 	//test data
 	vector<Triangle> t = {};
-	
 	Triangle t1 = {
 		vec4(2.75, -2.75, -5,0),
 		vec4(2.75, -2.75, -10.5,0), 
@@ -98,8 +97,12 @@ int main(int argc, char *argv[]){
 	Sphere s2 = { vec4(0, -1, -3.5, 0), vec4(0, 1, 0, 1), 0.5f };
 	s.push_back(s1);
 	s.push_back(s2);
+
+	vector<Light> l = {};
+	Light l1 = { vec4(-1, 1, -5, 0), vec4(0, 1, 0, 1), 0.5f, 1.0f };
+	l.push_back(l1);
 	
-	LoadShapes(s, t, p, program);
+	LoadShapes(s, t, p, l, program);
 	
 	
 	// run an event-triggered main loop
@@ -134,35 +137,40 @@ int main(int argc, char *argv[]){
 
 }
 
-bool LoadShapes(vector<Sphere> spheres, vector<Triangle> triangle, vector<Plane> planes, GLuint program) {
-	GLuint sphereUBO, triangleUBO, planeUBO;
+void LoadShapes(vector<Sphere> spheres, vector<Triangle> triangle, vector<Plane> planes, vector<Light> lights, GLuint program) {
+	GLuint sphereUBO, triangleUBO, planeUBO, lightUBO;
 	glGenBuffers(1, &sphereUBO);
 	glGenBuffers(1, &triangleUBO);
 	glGenBuffers(1, &planeUBO);
+	glGenBuffers(1, &lightUBO);
 	
 	glBindBuffer(GL_UNIFORM_BUFFER, sphereUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(Sphere) * spheres.size(), spheres.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Sphere) * spheres.size(), spheres.data(), GL_STATIC_READ);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, triangleUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(Triangle) * triangle.size(), triangle.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Triangle) * triangle.size(), triangle.data(), GL_STATIC_READ);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, planeUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(Plane) * planes.size(), planes.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Plane) * planes.size(), planes.data(), GL_STATIC_READ);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, lightUBO);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Light) * lights.size(), lights.data(), GL_STATIC_READ);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, sphereUBO);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 2, triangleUBO);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 3, planeUBO);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 4, lightUBO);
 
 	GLuint sphereCountIndex = glGetUniformLocation(program, "numSpheres");
 	GLuint triangleCountIndex = glGetUniformLocation(program, "numTriangles");
 	GLuint planeCountIndex = glGetUniformLocation(program, "numPlanes");
+	GLuint lightCountIndex = glGetUniformLocation(program, "numLights");
 	glUniform1i(sphereCountIndex, spheres.size());
 	glUniform1i(triangleCountIndex, triangle.size());
 	glUniform1i(planeCountIndex, planes.size());
-
-	return true;
+	glUniform1i(lightCountIndex, lights.size());
 }
 
 //Generate vertex points on the screen;
