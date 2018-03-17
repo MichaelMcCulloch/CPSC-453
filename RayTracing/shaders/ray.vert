@@ -116,7 +116,7 @@ vec3 trace(vec3 dir, int depth){
 
 		for (int i = 0; i < numSpheres; i++){ //iterate over spheres
 			float t = intersectSphere(p, newDir, i);
-			if (t >= 0 && t <= dist){ 
+			if (t >= -0.1 && t <= dist){ 
 				chosenColor = vec3(0,0,0);
 			}
 		}
@@ -153,8 +153,8 @@ float intersectSphere(vec3 origin, vec3 ray, int i){
 	if (disc < 0) return -1;
 
 	disc = sqrt(disc);
-	float t0 = -(b/2 - disc)/2;
-	float t1 = -(b/2 + disc)/2;
+	float t0 = -(b - disc)/2;
+	float t1 = -(b + disc)/2;
 
 	return (t0 < t1) ? t0 : t1;
 }
