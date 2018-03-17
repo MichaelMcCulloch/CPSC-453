@@ -145,16 +145,15 @@ float intersectSphere(vec3 origin, vec3 ray, int i){
 	vec3 oc = origin - center;
 	float r = sphere[i].radius;
 
-	
-	float b = 2*dot(d, oc);
+	float b = dot(d, oc);
 	float c = dot(oc, oc) - r*r;
 	
-	float disc = b*b - 4*c;
+	float disc = b*b - c;
 	if (disc < 0) return -1;
 
 	disc = sqrt(disc);
-	float t0 = -(b - disc)/2;
-	float t1 = -(b + disc)/2;
+	float t0 = -(b - disc);
+	float t1 = -(b + disc);
 
 	return (t0 < t1) ? t0 : t1;
 }
