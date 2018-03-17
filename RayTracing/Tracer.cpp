@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 	s.push_back(s1);
 
 	vector<Light> l = {};
-	Light l1 = {vec4(0, 40, -7.75, 0), vec4(1, 1, 1, 1), 0.5f, 1.0f};
+	Light l1 = {vec4(0, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 1.0f};
 	l.push_back(l1);
 
 	LoadShapes(s, t, p, l, program);
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 		// call function to draw our scene
 		glDrawArrays(GL_POINTS, 0, geometry.elementCount);
 
-		yoff += 0.001;
+		yoff += 0.01;
 		if (yoff > 6) yoff = 0;
 
 		// check for an report any OpenGL errors

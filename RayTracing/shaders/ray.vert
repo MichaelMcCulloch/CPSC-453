@@ -63,6 +63,7 @@ float intersectSphere(vec3, vec3, int);
 float intersectPlane(vec3, vec3, int );
 float intersectTriangle(vec3, vec3, int);
 
+float rand(vec2 co);
 void main(){
 
 	gl_Position = vec4(VertexPosition, 0.0, 1.0);
@@ -106,21 +107,44 @@ vec3 trace(vec3 dir, int depth){
 		}
 	}
 
+	/*
+		calculate reflections here?
+	*/
 
-	//calculate lighting
+
+	//calculate lighting, w/ soft shadows
+	int samples = 100;
+	vec3 shadow = vec3(0,0,0);
 	vec3 p = cameraOrigin + min * dir;
 	for (int l = 0; l < numLights; l++){
-		vec3 c = light[l].center.xyz;
-		float dist = sqrt(pow(c.x - p.x, 2) + pow(c.y - p.y, 2) + pow(c.z - p.z, 2));
-		vec3 newDir = normalize(c-p);
+		for(int n = 0; n < samples; n++){
+			float u = rand(vec2(n,n));
+			float v = rand(vec2(u,u));
+			float rad = light[l].radius;
 
-		for (int i = 0; i < numSpheres; i++){ //iterate over spheres
-			float t = intersectSphere(p, newDir, i);
-			if (t >= -0.1 && t <= dist){ 
-				chosenColor = vec3(0,0,0);
+			float theta = 2*pi *u;
+
+			float rX = sqrt(1-u*u)*cos(theta);
+			float rY = u;
+			float rZ = sqrt(1-u*u)*sin(theta);
+
+			vec3 c = light[l].center.xyz + vec3(rX, rY, rZ) * rad * v;
+			float dist = sqrt(pow(c.x - p.x, 2) + pow(c.y - p.y, 2) + pow(c.z - p.z, 2));
+			vec3 newDir = normalize(c-p);
+
+			for (int i = 0; i < numSpheres; i++){ //iterate over spheres
+				float t = intersectSphere(p, newDir, i);
+				if (t >= -0.1 && t <= dist){ 
+					shadow += vec3(0,0,0);
+				} else {
+					shadow += vec3(1,1,1)*light[l].intensity;
+				}
 			}
 		}
+		shadow = shadow / samples;
 	}
+
+	chosenColor = shadow * chosenColor;
 
 
 
@@ -210,4 +234,8 @@ float intersectTriangle(vec3 origin, vec3 ray, int i){
 	float p = (qn - on) / dn;
 	return p;
 
+}
+
+float rand(vec2 co){
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
