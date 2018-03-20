@@ -1,6 +1,6 @@
 #include "Tracer.h"
 
-#define DIM 1024
+#define DIM 1500
 
 using namespace std;
 

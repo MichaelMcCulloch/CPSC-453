@@ -48,9 +48,11 @@ uniform int numTriangles;
 uniform int numPlanes;
 uniform int numLights;
 
-uniform vec3 cameraOrigin;
+const int numBounce = 10;
 
+uniform vec3 cameraOrigin;
 uniform float fov;
+
 const float pi = 3.1415926535897931;
 
 //the tracing operation; returns pixel color
@@ -82,6 +84,10 @@ vec3 trace(vec3 dir, int depth){
 
 	float min = -1;
 	vec3 chosenColor = vec3(0,0,0);
+	int objectType = -1; //0 = sphere; 1 = plane; 2 = triangle
+	Sphere sObj;
+	Plane pObj;
+	Triangle tObj;
 	
 	for (int i = 0; i < numSpheres; i++){ //iterate over spheres
 		float t = intersectSphere(cameraOrigin, dir, i);
@@ -107,19 +113,20 @@ vec3 trace(vec3 dir, int depth){
 		}
 	}
 
-	/*
-		calculate reflections here?
-	*/
-
-
-	//calculate lighting, w/ soft shadows
+	//calculate visibility, w/ soft shadows
 	int samples = 100;
 	vec3 shadow = vec3(0,0,0);
 	vec3 p = cameraOrigin + min * dir;
 	for (int l = 0; l < numLights; l++){
 		for(int n = 0; n < samples; n++){
-			float u = rand(vec2(n,n));
-			float v = rand(vec2(u,u));
+			float r = 0;
+			if (n%2 == 0) {
+				r = (VertexPosition.x + VertexPosition.y)/2;
+			} else {
+				r = -(VertexPosition.x - VertexPosition.y)/2;
+			}
+			float u = rand(vec2(r,n));
+			float v = rand(vec2(n-u,n-r));
 			float rad = light[l].radius;
 
 			float theta = 2*pi *u;
@@ -133,7 +140,9 @@ vec3 trace(vec3 dir, int depth){
 			vec3 newDir = normalize(c-p);
 
 			for (int i = 0; i < numSpheres; i++){ //iterate over spheres
-				float t = intersectSphere(p, newDir, i);
+				//move slightly in direction of normal
+				vec3 normal = normalize(sphere[i].center.xyz - p);
+				float t = intersectSphere(p + 0.00001*normal, newDir, i);
 				if (t >= -0.1 && t <= dist){ 
 					shadow += vec3(0,0,0);
 				} else {
@@ -144,8 +153,17 @@ vec3 trace(vec3 dir, int depth){
 		shadow = shadow / samples;
 	}
 
+
+	/**
+	*Trace Shading here
+	*
+	*/
 	chosenColor = shadow * chosenColor;
 
+	vec3 color[numBounce];
+	for (int b = 0; b < numBounce; b++){
+
+	}
 
 
 
