@@ -55,7 +55,7 @@ uniform int numPlanes;
 uniform int numLights;
 
 const int numBounce = 2;
-const vec3 ambientLight = vec3(0.5,0.5,0.5);
+const vec3 ambientLight = vec3(0.1,0.1,0.1);
 uniform vec3 cameraOrigin;
 uniform float fov;
 
@@ -296,9 +296,11 @@ vec3 trace(vec3 origin, vec3 ray, int depth){
 		vec3 normal;
 
 		vec3 intersect = origin + minT * ray;
+
+		
 		switch (objectType){
 			case 0:
-				phong += ambientLight;
+				
 				diffuse = s.diffuseColor.xyz;
 				specular = s.specularColor.xyz;
 				phongExp = s.phongExp;
@@ -306,7 +308,7 @@ vec3 trace(vec3 origin, vec3 ray, int depth){
 				normal = normalize(intersect - s.center.xyz);
 				break;
 			case 1:
-				phong += ambientLight;
+				
 				diffuse = p.diffuseColor.xyz;
 				specular = p.specularColor.xyz;
 				phongExp = p.phongExp;
@@ -314,7 +316,7 @@ vec3 trace(vec3 origin, vec3 ray, int depth){
 				normal = normalize(p.norm.xyz);
 				break;
 			case 2:
-				phong += ambientLight;
+				
 				diffuse = t.diffuseColor.xyz;
 				specular = t.specularColor.xyz;
 				phongExp = t.phongExp;
@@ -332,44 +334,54 @@ vec3 trace(vec3 origin, vec3 ray, int depth){
 				//never gonna happen
 				break;
 		}
+		phong += diffuse * ambientLight;
+		
 		
 		
 		//calculate phong lighting for each light source
 		for (int l = 0; l < numLights; l++){
 			//check if in shadow from light, sum shadow
-			vec3 shadow;
+			vec3 shadow = vec3(0,0,0);
 			vec3 center = light[l].center.xyz;
 			float dist = vecToMagnitude(center - intersect);
 			vec3 rLight = normalize(center - intersect);
 			
 
-			float minT = -1;
-			for(int i = 0; i < numSpheres; i++){
+			bool found = false;
+
+			float minTT = -1;
+			for(int i = 0; i < numSpheres && !found; i++){
 				//move slightly in direction of normal
-				vec3 normal = normalize(sphere[i].center.xyz - intersect);
-				minT = intersectSphere(intersect + 0.00001*normal, rLight, i);
-				if (minT >= -0.1 && minT <= dist) break;
+				vec3 normOffs = normalize(sphere[i].center.xyz - intersect);
+				minTT = intersectSphere(intersect + 0.00001 * normal, rLight, i);
+				if (minTT >= 0 && minTT<= dist) found = true;
 			}
-			for(int i = 0; i < numPlanes; i++){
-				minT = intersectPlane(intersect, rLight, i);
-				if (minT >= -0.1 && minT <= dist) break;
+
+			for(int i = 0; i < numPlanes && !found; i++){
+				minTT = intersectPlane(intersect + 0.00001 * normal, rLight, i);
+				if (minTT >= 0 && minTT <= dist) found = true;
 			}
-			for(int i = 0; i < numTriangles; i++){
-				minT = intersectTriangle(intersect, rLight, i);
-				if (minT >= -0.1 && minT <= dist) break;
+			
+			for(int i = 0; i < numTriangles && !found; i++){
+				minTT = intersectTriangle(intersect + 0.00001 * normal, rLight, i);
+				if (minTT >= 0 && minTT <= dist) found = true;
 			}
-			if (minT >= -0.1 && minT <= dist){
-				shadow = vec3(0,0,0);
+
+			
+			if (found){
+				shadow =  vec3(0,0,0);
 			} else {
 				shadow = vec3(1,1,1) * light[l].color.xyz * light[l].intensity;
 			}
 			
+			
+			
 			vec3 LV = rLight + ray;
 			vec3 H = normalize(LV / normalize(LV));
-
-			phong += diffuse *(dot(rLight, normal)) * shadow;
-			phong += specular * pow(dot(normal, H), phongExp) * shadow;
+			vec3 R = 2 * (dot(rLight, normal)) *  normal - rLight;
 			
+			phong += diffuse *(dot(rLight, normal)) * shadow;
+			phong += specular * pow(dot(R, -ray), phongExp) * shadow;
 		}
 	}
 	return phong;
@@ -406,6 +418,8 @@ float intersectSphere(vec3 origin, vec3 ray, int i){
 	float t0 = -(b - disc);
 	float t1 = -(b + disc);
 
+	if (t0 <= 0) return t1;
+	if (t1 <= 0) return t0;
 	return (t0 < t1) ? t0 : t1;
 }
 
@@ -413,7 +427,7 @@ float intersectPlane(vec3 origin, vec3 ray, int i){
 	vec3 o = origin;
 	vec3 d = ray;
 	vec3 q = plane[i].point.xyz;
-	vec3 n = plane[i].norm.xyz;
+	vec3 n = normalize(plane[i].norm.xyz);
 
 	float qn = dot(q,n);
 	float on = dot(o,n);
@@ -447,13 +461,13 @@ float intersectTriangle(vec3 origin, vec3 ray, int i){
 
 	float t = dot(M, qvec) * invDet;
 
-	vec3 norm = cross(M, N);
+	vec3 norm = cross(N, M);
 
 	//same plane calc
 	vec3 o = origin;
 	vec3 d = ray;
 	vec3 q = A;
-	vec3 n = norm;
+	vec3 n = normalize(norm);
 
 	float qn = dot(q,n);
 	float on = dot(o,n);

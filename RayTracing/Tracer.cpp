@@ -107,12 +107,12 @@ int main(int argc, char *argv[])
 		vec4(0, -1.75, -7.75, 0),	//Center
 		vec4(1, 0, 0, 1),			//Diffuse Color
 		vec4(1, 1, 1, 0),			//Specular Color
-		8.0,						//Phong Exponent
+		10.0,						//Phong Exponent
 		1.0};						//Sphere Radius
 	s.push_back(s1);
 
 	vector<Light> l = {};
-	Light l1 = {vec4(0, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.5f};
+	Light l1 = {vec4(-25, 50, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.5f};
 	l.push_back(l1);
 
 	LoadShapes(s, t, p, l, program);
