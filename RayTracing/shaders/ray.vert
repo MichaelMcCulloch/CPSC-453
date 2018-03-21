@@ -252,6 +252,7 @@ vec3 trace(vec3 origin, vec3 ray, int depth){
 	return finalColor;
 */
 	//for each reflection
+	vec3 phong;
 	for(int hop = 0; hop < 1; hop++){
 
 		//find intersection point
@@ -289,7 +290,7 @@ vec3 trace(vec3 origin, vec3 ray, int depth){
 		if (minT < 0) return vec3(0, 0, 0);
 		
 		float phongExp;
-		vec3 phong;
+		
 		vec3 diffuse;
 		vec3 specular;
 		vec3 normal;
@@ -358,12 +359,12 @@ vec3 trace(vec3 origin, vec3 ray, int depth){
 				if (minT >= -0.1 && minT <= dist) break;
 			}
 			if (minT >= -0.1 && minT <= dist){
-				shadow += vec3(0,0,0);
+				shadow = vec3(0,0,0);
 			} else {
-				shadow += vec3(1,1,1) * light[l].color.xyz * light[l].intensity;
+				shadow = vec3(1,1,1) * light[l].color.xyz * light[l].intensity;
 			}
 			
-			vec3 LV = rLight + -ray;
+			vec3 LV = rLight + ray;
 			vec3 H = normalize(LV / normalize(LV));
 
 			phong += diffuse *(dot(rLight, normal)) * shadow;
@@ -371,6 +372,7 @@ vec3 trace(vec3 origin, vec3 ray, int depth){
 			
 		}
 	}
+	return phong;
 	
 }
 

@@ -77,12 +77,12 @@ int main(int argc, char *argv[])
 	//test data
 	vector<Triangle> t = {};
 	Triangle t1 = {
-		vec4(2.75, -2.75, -5, 0),
-		vec4(2.75, -2.75, -10.5, 0),
-		vec4(-2.75, -2.75, -10.5, 0),
-		vec4(1, 1, 1, 0),
-		vec4(1, 1, 1, 0),
-		1.0 };
+		vec4(2.75, -2.75, -5, 0),		//A
+		vec4(2.75, -2.75, -10.5, 0),	//B
+		vec4(-2.75, -2.75, -10.5, 0),	//C
+		vec4(1, 1, 1, 0),				//Diffuse Color
+		vec4(1, 1, 1, 0),				//Specular Color
+		1.0 };							//Phong Exponent
 	Triangle t2 = {
 		vec4(-2.75, -2.75, -5, 0),
 		vec4(2.75, -2.75, -5, 0),
@@ -95,24 +95,24 @@ int main(int argc, char *argv[])
 
 	vector<Plane> p = {};
 	Plane p1 = {
-		vec4(0, 0, 1, 0), 
-		vec4(0, 0, -10.5, 0), 
-		vec4(0, 0, 1, 0),
-		vec4(1, 1, 1, 0),
-		1.0 };
+		vec4(0, 0, 1, 0),		//Norm
+		vec4(0, 0, -10.5, 0),	//Point on plane
+		vec4(0, 0, 1, 0),		//Diffuse Color
+		vec4(1, 1, 1, 0),		//Specular Color
+		1.0 };					//Phong Exponent
 	p.push_back(p1);
 
 	vector<Sphere> s = {};
 	Sphere s1 = {
-		vec4(0, -1.75, -7.75, 0), 
-		vec4(1, 0, 0, 1),
-		vec4(1, 1, 1, 0),
-		1.0,
-		1.0};
+		vec4(0, -1.75, -7.75, 0),	//Center
+		vec4(1, 0, 0, 1),			//Diffuse Color
+		vec4(1, 1, 1, 0),			//Specular Color
+		8.0,						//Phong Exponent
+		1.0};						//Sphere Radius
 	s.push_back(s1);
 
 	vector<Light> l = {};
-	Light l1 = {vec4(-1, 1, -7.75, 0), vec4(1, 1, 1, 1), 1, 1.0f};
+	Light l1 = {vec4(0, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.5f};
 	l.push_back(l1);
 
 	LoadShapes(s, t, p, l, program);
