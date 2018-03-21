@@ -1,6 +1,6 @@
 #include "Tracer.h"
 
-#define DIM 1500
+#define DIM 1024
 
 using namespace std;
 
@@ -80,25 +80,39 @@ int main(int argc, char *argv[])
 		vec4(2.75, -2.75, -5, 0),
 		vec4(2.75, -2.75, -10.5, 0),
 		vec4(-2.75, -2.75, -10.5, 0),
-		vec4(1, 1, 1, 0)};
+		vec4(1, 1, 1, 0),
+		vec4(1, 1, 1, 0),
+		1.0 };
 	Triangle t2 = {
 		vec4(-2.75, -2.75, -5, 0),
 		vec4(2.75, -2.75, -5, 0),
 		vec4(-2.75, -2.75, -10.5, 0),
-		vec4(1, 1, 1, 0)};
+		vec4(1, 1, 1, 0),
+		vec4(1, 1, 1, 0),
+		1.0 };
 	t.push_back(t1);
 	t.push_back(t2);
 
 	vector<Plane> p = {};
-	Plane p1 = {vec4(0, 0, 1, 0), vec4(0, 0, -10.5, 0), vec4(0, 0, 1, 0)};
+	Plane p1 = {
+		vec4(0, 0, 1, 0), 
+		vec4(0, 0, -10.5, 0), 
+		vec4(0, 0, 1, 0),
+		vec4(1, 1, 1, 0),
+		1.0 };
 	p.push_back(p1);
 
 	vector<Sphere> s = {};
-	Sphere s1 = {vec4(0, -1.75, -7.75, 0), vec4(1, 0, 0, 1), 1};
+	Sphere s1 = {
+		vec4(0, -1.75, -7.75, 0), 
+		vec4(1, 0, 0, 1),
+		vec4(1, 1, 1, 0),
+		1.0,
+		1.0};
 	s.push_back(s1);
 
 	vector<Light> l = {};
-	Light l1 = {vec4(0, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 1.0f};
+	Light l1 = {vec4(-1, 1, -7.75, 0), vec4(1, 1, 1, 1), 1, 1.0f};
 	l.push_back(l1);
 
 	LoadShapes(s, t, p, l, program);

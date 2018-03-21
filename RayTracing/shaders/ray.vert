@@ -5,21 +5,27 @@ out vec3 Colour;
 
 struct Sphere {
 	vec4 center;
-	vec4 color;
+	vec4 diffuseColor;
+	vec4 specularColor;
+	float phongExp;
 	float radius;
 };
 
 struct Plane {
 	vec4 norm;
 	vec4 point;
-	vec4 color;
+	vec4 diffuseColor;
+	vec4 specularColor;
+	float phongExp;
 };
 
 struct Triangle{
 	vec4 A;
 	vec4 B;
 	vec4 C;
-	vec4 color;
+	vec4 diffuseColor;
+	vec4 specularColor;
+	float phongExp;
 };
 
 struct Light {
@@ -48,15 +54,15 @@ uniform int numTriangles;
 uniform int numPlanes;
 uniform int numLights;
 
-const int numBounce = 10;
-
+const int numBounce = 2;
+const vec3 ambientLight = vec3(0.5,0.5,0.5);
 uniform vec3 cameraOrigin;
 uniform float fov;
 
 const float pi = 3.1415926535897931;
 
 //the tracing operation; returns pixel color
-vec3 trace(vec3 ray, int depth);
+vec3 trace(vec3 origin, vec3 ray, int depth);
 //calculate a direction vector from which px on screen we are rendering
 vec3 directionFromPixel(vec2 pixel);
 
@@ -72,16 +78,16 @@ void main(){
 
 	vec3 dir = directionFromPixel(VertexPosition);
 	
-	Colour = trace(dir, 10);
+	Colour = trace(cameraOrigin, dir, 10);
 }
 
-vec3 trace(vec3 dir, int depth){
+vec3 trace(vec3 origin, vec3 dir, int depth){
 	/**
 	 * find the nearest instersection point:
 	 	For each object, find it's intersection point, take t = minimum
 	 */
 	
-
+/*
 	float min = -1;
 	vec3 chosenColor = vec3(0,0,0);
 	int objectType = -1; //0 = sphere; 1 = plane; 2 = triangle
@@ -93,7 +99,7 @@ vec3 trace(vec3 dir, int depth){
 		float t = intersectSphere(cameraOrigin, dir, i);
 		if (t > 0 && (min < 0 || t < min)){ 
 			min = t; //if min has not been set
-			chosenColor = sphere[i].color.rgb;
+			chosenColor = sphere[i].diffuseColor.rgb;
 		}
 	}
 
@@ -101,7 +107,7 @@ vec3 trace(vec3 dir, int depth){
 		float t = intersectPlane(cameraOrigin, dir, i);
 		if (t > 0 && (min < 0 || t < min)){ 
 			min = t; //if min has not been set
-			chosenColor = plane[i].color.rgb;
+			chosenColor = plane[i].diffuseColor.rgb;
 		}
 	}
 
@@ -109,12 +115,12 @@ vec3 trace(vec3 dir, int depth){
 		float t = intersectTriangle(cameraOrigin, dir, i);
 		if (t > 0 && (min < 0 || t < min)){ 
 			min = t; //if min has not been set
-			chosenColor = triangle[i].color.rgb;
+			chosenColor = triangle[i].diffuseColor.rgb;
 		}
 	}
 
 	//calculate visibility, w/ soft shadows
-	int samples = 100;
+	int samples = 2;
 	vec3 shadow = vec3(0,0,0);
 	vec3 p = cameraOrigin + min * dir;
 	for (int l = 0; l < numLights; l++){
@@ -125,6 +131,7 @@ vec3 trace(vec3 dir, int depth){
 			} else {
 				r = -(VertexPosition.x - VertexPosition.y)/2;
 			}
+			//select a random point in the light source
 			float u = rand(vec2(r,n));
 			float v = rand(vec2(n-u,n-r));
 			float rad = light[l].radius;
@@ -152,25 +159,185 @@ vec3 trace(vec3 dir, int depth){
 		}
 		shadow = shadow / samples;
 	}
+	chosenColor = shadow * chosenColor;
+	return chosenColor;
 
-
+*/
 	/**
 	*Trace Shading here
-	*
+	*	trace forward path, colecting Cr, 
 	*/
-	chosenColor = shadow * chosenColor;
-
-	vec3 color[numBounce];
+	
+/*
+	vec3 incidentLight[numBounce]; //calculated backwards
+	vec3 specularCalc[numBounce];  //max(0, h.n)^p
+	float diffuseCalc[numBounce]; //max(0, n.l)
+	vec3 diffCol[numBounce];
+	vec3 ray = dir;
 	for (int b = 0; b < numBounce; b++){
+		//----------------------------------------------------------
+		//for each ray, find its intersection point with an object:
+		float min = -1;
+		int objectType = -1; //0 = sphere; 1 = plane; 2 = triangle
+		Sphere sObj;
+		Plane pObj;
+		Triangle tObj;
+		
+		for (int i = 0; i < numSpheres; i++){ //iterate over spheres
+			float t = intersectSphere(origin, ray, i);
+			if (t > 0 && (min < 0 || t < min)){ 
+				min = t;
+				objectType = 0;
+				sObj = sphere[i];
+			}
+		}
 
+		for (int i = 0; i < numPlanes; i++){ //iterate over planes
+			float t = intersectPlane(origin, ray, i);
+			if (t > 0 && (min < 0 || t < min)){ 
+				min = t;
+				objectType = 1;
+				pObj = plane[i];
+			}
+		}
+
+		for (int i = 0; i < numTriangles; i++){ //iterate over triangles
+			float t = intersectTriangle(origin, ray, i);
+			if (t > 0 && (min < 0 || t < min)){ 
+				min = t;
+				objectType = 2;
+				tObj = triangle[i];
+			}
+		}
+		if (min < 0) return vec3(0,0,0);
+		
+		//--------------------------------
+		//calculate the new origin and ray
+		origin = origin + min * ray; //the point of intersection;
+		if (objectType == 0) {
+			vec3 norm = normalize( origin - sObj.center.xyz); //get new norm using new origin
+			ray = normalize(ray - 2 * (dot(ray, norm)) * norm); //get new ray using old ray
+			diffCol[b] = sObj.diffuseColor.xyz; // save diffuse color of this object
+			diffuseCalc[b] = max(0, dot(norm, ray));
+			specularCalc[b] = vec3(0,0,0);
+
+			
+		} else if (objectType == 1) {
+			vec3 norm = normalize(pObj.norm.xyz);
+			ray = normalize(ray - 2 * (dot(ray, norm)) * norm);
+			diffCol[b] = pObj.diffuseColor.xyz; // save diffuse color of this object
+			diffuseCalc[b] = max(0, dot(norm, ray));
+			specularCalc[b] = vec3(0,0,0);
+		} else if (objectType == 2) {
+			vec3 A = tObj.A.xyz;
+			vec3 B = tObj.B.xyz;
+			vec3 C = tObj.C.xyz;
+
+			vec3 N = B - A;
+			vec3 M = C - A;
+			vec3 norm = normalize(cross(N,M));
+			ray = normalize(ray - 2 * (dot(ray, norm)) * norm);
+			diffCol[b] = tObj.diffuseColor.xyz; // save diffuse color of this object
+			diffuseCalc[b] = max(0, dot(norm, ray));
+			specularCalc[b] = vec3(0,0,0);
+		}  
+		
 	}
 
+	vec3 finalColor = vec3(1,1,1);	
+	for (int b = numBounce-1; b >= 0; b--){
+		finalColor = diffCol[b] * (ambientLight + finalColor * diffuseCalc[b]);// + finalColor * ambientLight * specularCalc[b];
+	}
 
+	return finalColor;
+*/
+	for (int rN = 0; rN < 1; rN++){ //for each bounce forward
 
-	if (min < 0) return vec3(0,0,0);
+		//find the object intersected with
+		float min = -1;
+		int objectType = -1; //0 = sphere; 1 = plane; 2 = triangle
+		Sphere sObj;
+		Plane pObj;
+		Triangle tObj;
+		
+		for (int i = 0; i < numSpheres; i++){ //iterate over spheres
+			float t = intersectSphere(origin, ray, i);
+			if (t > 0 && (min < 0 || t < min)){ 
+				min = t;
+				objectType = 0;
+				sObj = sphere[i];
+			}
+		}
 
-	return chosenColor;
+		for (int i = 0; i < numPlanes; i++){ //iterate over planes
+			float t = intersectPlane(origin, ray, i);
+			if (t > 0 && (min < 0 || t < min)){ 
+				min = t;
+				objectType = 1;
+				pObj = plane[i];
+			}
+		}
+
+		for (int i = 0; i < numTriangles; i++){ //iterate over triangles
+			float t = intersectTriangle(origin, ray, i);
+			if (t > 0 && (min < 0 || t < min)){ 
+				min = t;
+				objectType = 2;
+				tObj = triangle[i];
+			}
+		}
+		if (min < 0) return vec3(0,0,0);
+		
+		//--------------------------------
+		//calculate the new origin and ray
+		origin = origin + min * ray; //the point of intersection;
+		if (objectType == 0) {
+			vec3 norm = normalize( origin - sObj.center.xyz); //get new norm using new origin
+			ray = normalize(ray - 2 * (dot(ray, norm)) * norm); //get new ray using old ray
+			diffCol[b] = sObj.diffuseColor.xyz; // save diffuse color of this object
+			diffuseCalc[b] = max(0, dot(norm, ray));
+			specularCalc[b] = vec3(0,0,0);
+
+			
+		} else if (objectType == 1) {
+			vec3 norm = normalize(pObj.norm.xyz);
+			ray = normalize(ray - 2 * (dot(ray, norm)) * norm);
+			diffCol[b] = pObj.diffuseColor.xyz; // save diffuse color of this object
+			diffuseCalc[b] = max(0, dot(norm, ray));
+			specularCalc[b] = vec3(0,0,0);
+		} else if (objectType == 2) {
+			vec3 A = tObj.A.xyz;
+			vec3 B = tObj.B.xyz;
+			vec3 C = tObj.C.xyz;
+
+			vec3 N = B - A;
+			vec3 M = C - A;
+			vec3 norm = normalize(cross(N,M));
+			ray = normalize(ray - 2 * (dot(ray, norm)) * norm);
+			diffCol[b] = tObj.diffuseColor.xyz; // save diffuse color of this object
+			diffuseCalc[b] = max(0, dot(norm, ray));
+			specularCalc[b] = vec3(0,0,0);
+		}  
+		vec3 kD, kS, normal;
+
+		vec3 specDiff;
+		for(int lN = 0; lN < numLights; lN++){
+
+			
+
+			specDiff = diffusion + diffusion;
+		}
+
+		vec3 finalColor = ambientLight + specDiff;
+	}
+
 	
+}
+
+
+
+float vecToMagnitude(vec3 v){
+	return sqrt(pow(v.x,2) + pow(v.y,2) + pow(v.z,2));
 }
 
 vec3 directionFromPixel(vec2 pixel){

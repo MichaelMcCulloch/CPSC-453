@@ -6,24 +6,36 @@
 
 struct Sphere {
 	vec4 center;
-	vec4 color;
+	vec4 diffuseColor;
+	vec4 specularColor;
+	float phongExp;
 	float radius;
 	float pad1; //align to 4-float;
 	float pad2;
-	float pad3;
 };
 
 struct Plane {
 	vec4 norm;
 	vec4 point;
-	vec4 color;
+	vec4 diffuseColor;
+	vec4 specularColor;
+	float phongExp;
+	float pad1; //align to 4-float;
+	float pad2;
+	float pad3;
+
 };
 
 struct Triangle {
 	vec4 A;
 	vec4 B;
 	vec4 C;
-	vec4 color;
+	vec4 diffuseColor;
+	vec4 specularColor;
+	float phongExp;
+	float pad1; //align to 4-float;
+	float pad2;
+	float pad3;
 };
 
 struct Light {
