@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 	glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 	glUniform1f(fov, 30);
 
-	LoadScene2(program);
+	LoadScene1(program);
 
 	float yoff = 0.0;
 	// run an event-triggered main loop
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 		glDrawArrays(GL_POINTS, 0, geometry.elementCount);
 
 		yoff += 0.01;
-		if (yoff > 6)
+		if (yoff > 60)
 			yoff = 0;
 
 		// check for an report any OpenGL errors

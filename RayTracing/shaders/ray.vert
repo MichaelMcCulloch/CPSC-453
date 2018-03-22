@@ -10,6 +10,7 @@ struct Sphere
     vec4 specularColor;
     float phongExp;
     float radius;
+    float reflectance;
 };
 
 struct Plane
@@ -19,6 +20,7 @@ struct Plane
     vec4 diffuseColor;
     vec4 specularColor;
     float phongExp;
+    float reflectance;
 };
 
 struct Triangle
@@ -29,6 +31,7 @@ struct Triangle
     vec4 diffuseColor;
     vec4 specularColor;
     float phongExp;
+    float reflectance;
 };
 
 struct Light
@@ -230,11 +233,11 @@ vec3 trace(vec3 origin, vec3 ray, int depth)
                     shadow += light[l].color.xyz * light[l].intensity / lightSamples;
                 }
             }
-            vec3 R = 2 * (dot(rLight, normal)) * normal - rLight;
+            vec3 R = rLight - 2 * (dot(rLight, normal)) * normal ;
 
             phong += diffuse * ambientLight;
-            phong += (specular * pow(dot(R, ray), phongExp) * shadow);
-            phong += (diffuse * (dot(rLight, normal)) * shadow);
+            phong += (specular * pow(max(0, dot(R, ray)), phongExp) * shadow);
+            phong += (diffuse * (max(0, dot(rLight, normal))) * shadow);
         }
     }
     return phong;

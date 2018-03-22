@@ -10,8 +10,8 @@ struct Sphere {
 	vec4 specularColor;
 	float phongExp;
 	float radius;
-	float pad1; //align to 4-float;
-	float pad2;
+	float reflectance;
+	float pad2; //align to 4-float;
 };
 
 struct Plane {
@@ -20,8 +20,8 @@ struct Plane {
 	vec4 diffuseColor;
 	vec4 specularColor;
 	float phongExp;
-	float pad1; //align to 4-float;
-	float pad2;
+	float reflectance; 
+	float pad2;//align to 4-float;
 	float pad3;
 
 };
@@ -33,8 +33,8 @@ struct Triangle {
 	vec4 diffuseColor;
 	vec4 specularColor;
 	float phongExp;
-	float pad1; //align to 4-float;
-	float pad2;
+	float reflectance; 
+	float pad2;//align to 4-float;
 	float pad3;
 };
 
