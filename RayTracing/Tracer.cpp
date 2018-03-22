@@ -1,6 +1,6 @@
 #include "Tracer.h"
 
-#define DIM 1024
+#define DIM 1500
 
 using namespace std;
 
@@ -126,10 +126,12 @@ int main(int argc, char *argv[])
 	s.push_back(s3);
 
 	vector<Light> l = {};
-	Light l1 = {vec4(-10, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.25};
-	Light l2 = { vec4(10, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.25 };
-	l.push_back(l1);
-	l.push_back(l2);
+	Light l1 = {vec4(-10, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.33};
+	Light l2 = { vec4(10, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.33 };
+	Light l3 = { vec4(0, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.75 };
+	//l.push_back(l1);
+	//l.push_back(l2);
+	l.push_back(l3);
 
 	LoadShapes(s, t, p, l, program);
 
@@ -138,12 +140,12 @@ int main(int argc, char *argv[])
 	while (!glfwWindowShouldClose(window))
 	{
 
-		vec3 origin = vec3(0, 0, 0);
+		vec3 origin = vec3(-yoff + 3, 0, 0);
 		glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 		// call function to draw our scene
 		glDrawArrays(GL_POINTS, 0, geometry.elementCount);
 
-		yoff += 0.001;
+		yoff += 0.01;
 		if (yoff > 6) yoff = 0;
 
 		// check for an report any OpenGL errors

@@ -94,13 +94,12 @@ void main()
 vec3 trace(vec3 origin, vec3 ray, int depth)
 {
 	vec3 phong;
+
     //for each reflection
-    
     for (int hop = 0; hop < 1; hop++)
     {
 
         //find intersection point
-
         int objectType = -1; //0 = sphere; 1 = plane; 2 = triangle
         Sphere s;
         Plane p;
@@ -182,51 +181,54 @@ vec3 trace(vec3 origin, vec3 ray, int depth)
             //never gonna happen
             break;
         }
-
+        int lightSamples = 1;
         //calculate phong lighting for each light source
         for (int l = 0; l < numLights; l++)
         {
             //check if in shadow from light, sum shadow
             vec3 shadow = vec3(0, 0, 0);
-            vec3 center = light[l].center.xyz;
-            float dist = vecToMagnitude(center - intersect);
-            vec3 rLight = normalize(center - intersect);
+            vec3 center, rLight;
+            float dist;
+            for (int n = 0; n < lightSamples; n++){
+                center = light[l].center.xyz;
+                dist = vecToMagnitude(center - intersect);
+                rLight = normalize(center - intersect);
 
-            bool found = false;
+                bool found = false;
 
-			//check if an object is between light and object
-            float minTT = -1;
-            for (int i = 0; i < numSpheres && !found; i++)
-            {
-                //move slightly in direction of normal
-                minTT = intersectSphere(intersect + 0.0001 * normal, rLight, i);
-                if (minTT >= 0 && minTT <= dist)
-                    found = true;
+                //check if an object is between light and object
+                float minTT = -1;
+                for (int i = 0; i < numSpheres && !found; i++)
+                {
+                    //move slightly in direction of normal
+                    minTT = intersectSphere(intersect + 0.0001 * normal, rLight, i);
+                    if (minTT >= 0 && minTT <= dist)
+                        found = true;
+                }
+
+                for (int i = 0; i < numPlanes && !found; i++)
+                {
+                    minTT = intersectPlane(intersect + 0.00001 * normal, rLight, i);
+                    if (minTT >= 0 && minTT <= dist)
+                        found = true;
+                }
+
+                for (int i = 0; i < numTriangles && !found; i++)
+                {
+                    minTT = intersectTriangle(intersect + 0.00001 * normal, rLight, i);
+                    if (minTT >= 0 && minTT <= dist)
+                        found = true;
+                }
+
+                if (found)
+                {
+                    shadow += vec3(0, 0, 0);
+                }
+                else
+                {
+                    shadow += light[l].color.xyz * light[l].intensity / lightSamples;
+                }
             }
-
-            for (int i = 0; i < numPlanes && !found; i++)
-            {
-                minTT = intersectPlane(intersect + 0.00001 * normal, rLight, i);
-                if (minTT >= 0 && minTT <= dist)
-                    found = true;
-            }
-
-            for (int i = 0; i < numTriangles && !found; i++)
-            {
-                minTT = intersectTriangle(intersect + 0.00001 * normal, rLight, i);
-                if (minTT >= 0 && minTT <= dist)
-                    found = true;
-            }
-
-            if (found)
-            {
-                shadow = vec3(0, 0, 0);
-            }
-            else
-            {
-                shadow = light[l].color.xyz * light[l].intensity;
-            }
-
             vec3 R = 2 * (dot(rLight, normal)) * normal - rLight;
 
             phong += diffuse * ambientLight;
