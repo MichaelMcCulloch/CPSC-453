@@ -1,6 +1,6 @@
 #include "Tracer.h"
 
-#define DIM 1500
+#define DIM 1024
 
 using namespace std;
 using namespace glm;
@@ -53,7 +53,14 @@ int main(int argc, char *argv[])
 	}
 
 	// three vertex positions and assocated colours of a triangle
-	vector<vec2> vertices = generatePoint();
+	vector<vec2> vertices = {
+		vec2(-1, -1),
+		vec2(-1, 1),
+		vec2(1, -1),
+		vec2(1,1)
+
+	};
+
 
 	// call function to create and fill buffers with geometry data
 	Geometry geometry;
@@ -75,7 +82,7 @@ int main(int argc, char *argv[])
 	glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 	glUniform1f(fov, 30);
 
-	LoadScene1(program);
+	LoadScene2(program);
 
 	float yoff = 0.0;
 	// run an event-triggered main loop
@@ -85,7 +92,7 @@ int main(int argc, char *argv[])
 		vec3 origin = vec3(0, 0, 0);
 		glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 		// call function to draw our scene
-		glDrawArrays(GL_POINTS, 0, geometry.elementCount);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, geometry.elementCount);
 
 		yoff += 0.01;
 		if (yoff > 60)
@@ -619,22 +626,6 @@ void LoadShapes(vector<Sphere> spheres, vector<Triangle> triangles, vector<Plane
 	glUniform1i(lightCountIndex, lights.size());
 }
 
-//Generate vertex points on the screen;
-vector<vec2> generatePoint()
-{
-	vector<vec2> screen = {};
-	float d = (float)DIM;
-	for (float y = 0; y < d; y++)
-	{
-		for (float x = 0; x < d; x++)
-		{
-			float yPos = 2 * (y + 0.5) / d;
-			float xPos = 2 * (x + 0.5) / d;
-			screen.push_back(vec2(xPos, yPos) + vec2(-1, -1));
-		}
-	}
-	return screen;
-}
 
 // --------------------------------------------------------------------------
 // GLFW callback functions

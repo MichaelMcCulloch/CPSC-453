@@ -49,7 +49,6 @@ struct Light {
 
 using namespace std;
 
-vector<vec2> generatePoint();
 
 //Prepare scenes for the buffer
 void LoadScene1(GLuint program);
