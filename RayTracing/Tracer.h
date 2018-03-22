@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "Geometry.h"
-
+#include "imagebuffer.h"
 struct Sphere {
 	vec4 center;
 	vec4 diffuseColor;

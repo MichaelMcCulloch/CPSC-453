@@ -5,6 +5,8 @@
 using namespace std;
 using namespace glm;
 
+ImageBuffer *ib;
+
 int main(int argc, char *argv[])
 {
 	// initialize the GLFW windowing system
@@ -84,19 +86,24 @@ int main(int argc, char *argv[])
 
 	LoadScene2(program);
 
+	ib = new ImageBuffer();
+	ib->Initialize();
+
 	float yoff = 0.0;
 	// run an event-triggered main loop
 	while (!glfwWindowShouldClose(window))
 	{
 
-		vec3 origin = vec3(0, 0, 0);
+		vec3 origin = vec3(yoff - 3, 0, 0);
 		glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 		// call function to draw our scene
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, geometry.elementCount);
 
+		
 		yoff += 0.01;
-		if (yoff > 60)
+		if (yoff > 6) {
 			yoff = 0;
+		}
 
 		// check for an report any OpenGL errors
 		CheckGLErrors();
@@ -290,7 +297,8 @@ void LoadScene2(GLuint program)
 		vec4(0, -1, 0, 0),
 		vec4(1, 1, 1, 1),
 		vec4(1, 1, 1, 1),
-		10};
+		10,
+		0.5};
 
 	// Back wall
 	Plane wallPlane = {
@@ -676,6 +684,24 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 		{
 		case GLFW_KEY_ESCAPE:
 			glfwSetWindowShouldClose(window, GL_TRUE);
+			break;
+		case GLFW_KEY_P:
+		{
+			GLfloat * data = new GLfloat[3 * DIM * DIM];
+			glReadPixels(0, 0, DIM, DIM, GL_RGB, GL_FLOAT, data);
+			for (int y = 0; y < DIM; y++) {
+				for (int x = 0; x < DIM; x++) {
+					float rValue = data[3 * (x + y * DIM)];
+					float gValue = data[3 * (x + y * DIM) + 1];
+					float bValue = data[3 * (x + y * DIM) + 2];
+
+					ib->SetPixel(x, y, vec3(rValue, gValue, bValue));
+				}
+			}
+			free(data);
+			ib->Render();
+			ib->SaveToFile("scene.jpg");
+		}
 			break;
 		default:
 			break;
