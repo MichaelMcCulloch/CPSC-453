@@ -93,13 +93,13 @@ void main()
 
 vec3 trace(vec3 origin, vec3 ray, int depth)
 {
-	vec3 phong;
+    vec3 phong;
 
     //for each reflection
     for (int hop = 0; hop < 1; hop++)
     {
 
-        //find intersection point
+        //find intersection point and type of object
         int objectType = -1; //0 = sphere; 1 = plane; 2 = triangle
         Sphere s;
         Plane p;
@@ -137,7 +137,7 @@ vec3 trace(vec3 origin, vec3 ray, int depth)
             }
         }
 
-		//no intersection
+        //no intersection
         if (minT < 0)
             return vec3(0, 0, 0);
 
@@ -148,24 +148,25 @@ vec3 trace(vec3 origin, vec3 ray, int depth)
 
         vec3 intersect = origin + minT * ray; //point of intersection with object
 
-		//collect values from object
-        switch (objectType) {
+        //collect values from object
+        switch (objectType)
+        {
         case 0:
-			diffuse = s.diffuseColor.xyz;
+            diffuse = s.diffuseColor.xyz;
             specular = s.specularColor.xyz;
             phongExp = s.phongExp;
 
             normal = normalize(intersect - s.center.xyz);
             break;
         case 1:
-			diffuse = p.diffuseColor.xyz;
+            diffuse = p.diffuseColor.xyz;
             specular = p.specularColor.xyz;
             phongExp = p.phongExp;
 
             normal = normalize(p.norm.xyz);
             break;
         case 2:
-			diffuse = t.diffuseColor.xyz;
+            diffuse = t.diffuseColor.xyz;
             specular = t.specularColor.xyz;
             phongExp = t.phongExp;
 
@@ -189,7 +190,8 @@ vec3 trace(vec3 origin, vec3 ray, int depth)
             vec3 shadow = vec3(0, 0, 0);
             vec3 center, rLight;
             float dist;
-            for (int n = 0; n < lightSamples; n++){
+            for (int n = 0; n < lightSamples; n++)
+            {
                 center = light[l].center.xyz;
                 dist = vecToMagnitude(center - intersect);
                 rLight = normalize(center - intersect);
@@ -197,26 +199,25 @@ vec3 trace(vec3 origin, vec3 ray, int depth)
                 bool found = false;
 
                 //check if an object is between light and object
-                float minTT = -1;
                 for (int i = 0; i < numSpheres && !found; i++)
                 {
                     //move slightly in direction of normal
-                    minTT = intersectSphere(intersect + 0.0001 * normal, rLight, i);
-                    if (minTT >= 0 && minTT <= dist)
+                    float test = intersectSphere(intersect + 0.0001 * normal, rLight, i);
+                    if (test >= 0 && test <= dist)
                         found = true;
                 }
 
                 for (int i = 0; i < numPlanes && !found; i++)
                 {
-                    minTT = intersectPlane(intersect + 0.00001 * normal, rLight, i);
-                    if (minTT >= 0 && minTT <= dist)
+                    float test = intersectPlane(intersect + 0.00001 * normal, rLight, i);
+                    if (test >= 0 && test <= dist)
                         found = true;
                 }
 
                 for (int i = 0; i < numTriangles && !found; i++)
                 {
-                    minTT = intersectTriangle(intersect + 0.00001 * normal, rLight, i);
-                    if (minTT >= 0 && minTT <= dist)
+                    float test = intersectTriangle(intersect + 0.00001 * normal, rLight, i);
+                    if (test >= 0 && test <= dist)
                         found = true;
                 }
 

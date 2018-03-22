@@ -51,6 +51,11 @@ using namespace std;
 
 vector<vec2> generatePoint();
 
+//Prepare scenes for the buffer
+void LoadScene1(GLuint program);
+void LoadScene2(GLuint program);
+void LoadScene3(GLuint program);
+
 //load shapes into uniform buffer objects
 void LoadShapes(vector<Sphere> spheres, vector<Triangle> triangle, vector<Plane> planes, vector<Light> lights, GLuint program);
 //GLFW Callbacks

@@ -3,6 +3,7 @@
 #define DIM 1500
 
 using namespace std;
+using namespace glm;
 
 int main(int argc, char *argv[])
 {
@@ -74,79 +75,21 @@ int main(int argc, char *argv[])
 	glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 	glUniform1f(fov, 30);
 
-	//test data
-	vector<Triangle> t = {};
-	Triangle t1 = {
-		vec4(2.75, -2.75, -5, 0),		//A
-		vec4(2.75, -2.75, -10.5, 0),	//B
-		vec4(-2.75, -2.75, -10.5, 0),	//C
-		vec4(1, 1, 1, 0),				//Diffuse Color
-		vec4(1, 1, 1, 0),				//Specular Color
-		10.0 };							//Phong Exponent
-	Triangle t2 = {
-		vec4(-2.75, -2.75, -5, 0),
-		vec4(2.75, -2.75, -5, 0),
-		vec4(-2.75, -2.75, -10.5, 0),
-		vec4(1, 1, 1, 0),
-		vec4(1, 1, 1, 0),
-		10.0 };
-	t.push_back(t1);
-	t.push_back(t2);
-
-	vector<Plane> p = {};
-	Plane p1 = {
-		vec4(0, 0, 1, 0),		//Norm
-		vec4(0, 0, -10.5, 0),	//Point on plane
-		vec4(0, 0, 1, 0),		//Diffuse Color
-		vec4(1, 1, 1, 0),		//Specular Color
-		10.0 };					//Phong Exponent
-	p.push_back(p1);
-
-	vector<Sphere> s = {};
-	Sphere s1 = {
-		vec4(0, -1.75, -7.75, 0),	//Center
-		vec4(1, 0, 0, 1),			//Diffuse Color
-		vec4(1, 1, 1, 0),			//Specular Color
-		10.0,						//Phong Exponent
-		1.0};						//Sphere Radius
-	Sphere s2 = {
-		vec4(-1.5, -1, -7, 0),	//Center
-		vec4(0, 1, 0, 1),			//Diffuse Color
-		vec4(1, 1, 1, 0),			//Specular Color
-		10.0,						//Phong Exponent
-		0.5 };						//Sphere Radius
-	Sphere s3 = {
-		vec4(-2.25, -1.75, -7.75, 0),	//Center
-		vec4(0, 0, 1, 1),			//Diffuse Color
-		vec4(1, 1, 1, 0),			//Specular Color
-		10.0,						//Phong Exponent
-		0.25 };						//Sphere Radius
-	s.push_back(s1);
-	s.push_back(s2);
-	s.push_back(s3);
-
-	vector<Light> l = {};
-	Light l1 = {vec4(-10, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.33};
-	Light l2 = { vec4(10, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.33 };
-	Light l3 = { vec4(0, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.75 };
-	//l.push_back(l1);
-	//l.push_back(l2);
-	l.push_back(l3);
-
-	LoadShapes(s, t, p, l, program);
+	LoadScene2(program);
 
 	float yoff = 0.0;
 	// run an event-triggered main loop
 	while (!glfwWindowShouldClose(window))
 	{
 
-		vec3 origin = vec3(-yoff + 3, 0, 0);
+		vec3 origin = vec3(0, 0, 0);
 		glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 		// call function to draw our scene
 		glDrawArrays(GL_POINTS, 0, geometry.elementCount);
 
 		yoff += 0.01;
-		if (yoff > 6) yoff = 0;
+		if (yoff > 6)
+			yoff = 0;
 
 		// check for an report any OpenGL errors
 		CheckGLErrors();
@@ -157,7 +100,7 @@ int main(int argc, char *argv[])
 	}
 
 	// reset state to default (no shader or geometry bound)
-	
+
 	// clean up allocated resources before exit
 	DestroyGeometry(&geometry);
 	glBindVertexArray(0);
@@ -168,6 +111,475 @@ int main(int argc, char *argv[])
 
 	cout << "Goodbye!" << endl;
 	return 0;
+}
+
+void LoadScene1(GLuint program)
+{
+	vector<Light> lights = {};
+	vector<Sphere> spheres = {};
+	vector<Triangle> triangles = {};
+	vector<Plane> planes = {};
+	Light l1 = {
+		vec4(0, 2.5, -7.75, 1),
+		vec4(1, 1, 1, 1),
+		1.0f,
+		0.5f};
+
+	lights.push_back(l1);
+
+	Sphere reflectiveGrey = {
+		vec4(0.9, -1.925, -6.69, 1),
+		vec4(0.5, 0.5, 0.5, 1),
+		vec4(1, 1, 1, 1),
+		10.0f,
+		0.825f};
+
+	spheres.push_back(reflectiveGrey);
+
+	//Blue pyramid
+	Triangle blueT1 = {
+		vec4(-0.4, -2.75, -9.55, 1),
+		vec4(-0.93, 0.55, -8.51, 1),
+		vec4(0.11, -2.75, -7.98, 1),
+		vec4(0, 0, 1, 0),
+		vec4(1, 1, 1, 1),
+		10.f};
+	Triangle blueT2 = {
+		vec4(0.11, -2.75, -7.98, 1),
+		vec4(-0.93, 0.55, -8.51, 1),
+		vec4(-1.46, -2.75, -7.47, 1),
+		vec4(0, 0, 1, 0),
+		vec4(1, 1, 1, 1),
+		10.f};
+	Triangle blueT3 = {
+		vec4(-1.46, -2.75, -7.47, 1),
+		vec4(-0.93, 0.55, -8.51, 1),
+		vec4(-1.97, -2.75, -9.04, 1),
+		vec4(0, 0, 1, 0),
+		vec4(1, 1, 1, 1),
+		10.f};
+	Triangle blueT4 = {
+		vec4(-1.97, -2.75, -9.0, 14),
+		vec4(-0.93, 0.55, -8.51, 1),
+		vec4(-0.4, -2.75, -9.55, 1),
+		vec4(0, 0, 1, 0),
+		vec4(1, 1, 1, 1),
+		10.f};
+
+	//Ceiling
+	Triangle ceilingT1 = {
+		vec4(2.75, 2.75, -10.5, 1),
+		vec4(2.75, 2.75, -5, 1),
+		vec4(-2.75, 2.75, -5, 1),
+		vec4(1, 1, 1, 1),
+		vec4(1, 1, 1, 1),
+		10.0f};
+	Triangle ceilingT2 = {
+		vec4(-2.75, 2.75, -10.5, 1),
+		vec4(2.75, 2.75, -10.5, 1),
+		vec4(-2.75, 2.75, -5, 1),
+		vec4(1, 1, 1, 1),
+		vec4(1, 1, 1, 1),
+		10.0f};
+
+	//Green wall on right
+	Triangle wallRightGreenT1 = {
+		vec4(2.75, 2.75, -5, 1),
+		vec4(2.75, 2.75, -10.5, 1),
+		vec4(2.75, -2.75, -10.5, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10.0f};
+	Triangle wallRightGreenT2 = {
+		vec4(2.75, -2.75, -5, 1),
+		vec4(2.75, 2.75, -5, 1),
+		vec4(2.75, -2.75, -10.5, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10.0f};
+
+	//Red wall on left
+	Triangle wallLeftRedT1 = {
+		vec4(-2.75, -2.75, -5, 1),
+		vec4(-2.75, -2.75, -10.5, 1),
+		vec4(-2.75, 2.75, -10.5, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 1, 1, 1),
+		10.0f};
+	Triangle wallLeftRedT2 = {
+		vec4(-2.75, 2.75, -5, 1),
+		vec4(-2.75, -2.75, -5, 1),
+		vec4(-2.75, 2.75, -10.5, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 1, 1, 1),
+		10.0f};
+
+	//Floor
+	Triangle floorT1 = {
+		vec4(2.75, -2.75, -5, 1),
+		vec4(2.75, -2.75, -10.5, 1),
+		vec4(-2.75, -2.75, -10.5, 1),
+		vec4(1, 1, 1, 1),
+		vec4(1, 1, 1, 1),
+		10.0f};
+	Triangle floorT2 = {
+		vec4(-2.75, -2.75, -5, 1),
+		vec4(2.75, -2.75, -5, 1),
+		vec4(-2.75, -2.75, -10.5, 1),
+		vec4(1, 1, 1, 1),
+		vec4(1, 1, 1, 1),
+		10.0f};
+
+	triangles.push_back(blueT1);
+	triangles.push_back(blueT2);
+	triangles.push_back(blueT3);
+	triangles.push_back(blueT4);
+	triangles.push_back(ceilingT1);
+	triangles.push_back(ceilingT2);
+	triangles.push_back(wallRightGreenT1);
+	triangles.push_back(wallRightGreenT2);
+	triangles.push_back(wallLeftRedT1);
+	triangles.push_back(wallLeftRedT2);
+	triangles.push_back(floorT1);
+	triangles.push_back(floorT2);
+
+	//Back wall
+	Plane backWall = {
+		vec4(0, 0, 1, 0),
+		vec4(0, 0, -10.5, 0),
+		vec4(1, 1, 1, 1),
+		vec4(1, 1, 1, 1),
+		10.0f};
+
+	planes.push_back(backWall);
+
+	LoadShapes(spheres, triangles, planes, lights, program);
+}
+
+void LoadScene2(GLuint program)
+{
+
+	vector<Light> lights = {};
+	vector<Sphere> spheres = {};
+	vector<Triangle> triangles = {};
+	vector<Plane> planes = {};
+	Light light = {
+		vec4(4, 6, -1, 1),
+		vec4(1, 1, 1, 1),
+		1.0,
+		0.5};
+
+	lights.push_back(light);
+	// Floor
+	Plane floorPlane = {
+		vec4(0, 1, 0, 0),
+		vec4(0, -1, 0, 0),
+		vec4(1, 1, 1, 1),
+		vec4(1, 1, 1, 1),
+		10};
+
+	// Back wall
+	Plane wallPlane = {
+		vec4(0, 0, 1, 0),
+		vec4(0, 0, -12, 0),
+		vec4(1, 1, 1, 1),
+		vec4(1, 1, 1, 1),
+		10};
+
+	planes.push_back(floorPlane);
+	planes.push_back(wallPlane);
+
+	// Large yellow sphere
+	Sphere sphereYellow = {
+		vec4(1, -0.5, -3.5, 1),
+		vec4(1, 0, 1, 1),
+		vec4(1, 0, 1, 1),
+		10,
+		0.5};
+
+	// Reflective grey sphere
+	Sphere sphereGrey = {
+		vec4(0, 1, -5, 1),
+		vec4(0.5, 0.5, 0.5, 0.5),
+		vec4(1, 1, 1, 1),
+		10,
+		0.4};
+
+	// Metallic purple sphere
+	Sphere spherePurple = {
+		vec4(-0.8, -0.75, -4, 1),
+		vec4(1, 1, 0, 1),
+		vec4(1, 1, 1, 1),
+		100,
+		0.25};
+
+	spheres.push_back(sphereYellow);
+	spheres.push_back(sphereGrey);
+	spheres.push_back(spherePurple);
+
+	// Green cone
+	Triangle greenCone0 = {
+		vec4(0, -1, -5.8, 1),
+		vec4(0, 0.6, -5, 1),
+		vec4(0.4, -1, -5.693, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10};
+	Triangle greenCone1 = {
+		vec4(0.4, -1, -5.693, 1),
+		vec4(0, 0.6, -5, 1),
+		vec4(0.6928, -1, -5.4, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10};
+	Triangle greenCone2 = {
+		vec4(0.6928, -1, -5.4, 1),
+		vec4(0, 0.6, -5, 1),
+		vec4(0.8, -1, -5, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10};
+	Triangle greenCone3 = {
+		vec4(0.8, -1, -5, 1),
+		vec4(0, 0.6, -5, 1),
+		vec4(0.6928, -1, -4.6, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10};
+	Triangle greenCone4 = {
+		vec4(0.6928, -1, -4.6, 1),
+		vec4(0, 0.6, -5, 1),
+		vec4(0.4, -1, -4.307, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10};
+	Triangle greenCone5 = {
+		vec4(0.4, -1, -4.307, 1),
+		vec4(0, 0.6, -5, 1),
+		vec4(0, -1, -4.2, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10};
+	Triangle greenCone6 = {
+		vec4(0, -1, -4.2, 1),
+		vec4(0, 0.6, -5, 1),
+		vec4(-0.4, -1, -4.307, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10};
+	Triangle greenCone7 = {
+		vec4(-0.4, -1, -4.307, 1),
+		vec4(0, 0.6, -5, 1),
+		vec4(-0.6928, -1, -4.6, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10};
+	Triangle greenCone8 = {
+		vec4(-0.6928, -1, -4.6, 1),
+		vec4(0, 0.6, -5, 1),
+		vec4(-0.8, -1, -5, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10};
+	Triangle greenCone9 = {
+		vec4(-0.8, -1, -5, 1),
+		vec4(0, 0.6, -5, 1),
+		vec4(-0.6928, -1, -5.4, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10};
+	Triangle greenCone10 = {
+		vec4(-0.6928, -1, -5.4, 1),
+		vec4(0, 0.6, -5, 1),
+		vec4(-0.4, -1, -5.693, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10};
+	Triangle greenCone11 = {
+		vec4(-0.4, -1, -5.693, 1),
+		vec4(0, 0.6, -5, 1),
+		vec4(0, -1, -5.8, 1),
+		vec4(0, 1, 0, 0),
+		vec4(1, 1, 1, 1),
+		10};
+
+	//, Shiny, red, icosahedron
+	Triangle icosahedron0 = {
+		vec4(-2, -1, -7, 1),
+		vec4(-1.276, -0.4472, -6.474, 1),
+		vec4(-2.276, -0.4472, -6.149, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron1 = {
+		vec4(-1.276, -0.4472, -6.474, 1),
+		vec4(-2, -1, -7, 1),
+		vec4(-1.276, -0.4472, -7.526, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron2 = {
+		vec4(-2, -1, -7, 1),
+		vec4(-2.276, -0.4472, -6.149, 1),
+		vec4(-2.894, -0.4472, -7, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron3 = {
+		vec4(-2, -1, -7, 1),
+		vec4(-2.894, -0.4472, -7, 1),
+		vec4(-2.276, -0.4472, -7.851, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron4 = {
+		vec4(-2, -1, -7, 1),
+		vec4(-2.276, -0.4472, -7.851, 1),
+		vec4(-1.276, -0.4472, -7.526, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron5 = {
+		vec4(-1.276, -0.4472, -6.474, 1),
+		vec4(-1.276, -0.4472, -7.526, 1),
+		vec4(-1.106, 0.4472, -7, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron6 = {
+		vec4(-2.276, -0.4472, -6.149, 1),
+		vec4(-1.276, -0.4472, -6.474, 1),
+		vec4(-1.724, 0.4472, -6.149, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron7 = {
+		vec4(-2.894, -0.4472, -7, 1),
+		vec4(-2.276, -0.4472, -6.149, 1),
+		vec4(-2.724, 0.4472, -6.474, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron8 = {
+		vec4(-2.276, -0.4472, -7.851, 1),
+		vec4(-2.894, -0.4472, -7, 1),
+		vec4(-2.724, 0.4472, -7.526, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron9 = {
+		vec4(-1.276, -0.4472, -7.526, 1),
+		vec4(-2.276, -0.4472, -7.851, 1),
+		vec4(-1.724, 0.4472, -7.851, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron10 = {
+		vec4(-1.276, -0.4472, -6.474, 1),
+		vec4(-1.106, 0.4472, -7, 1),
+		vec4(-1.724, 0.4472, -6.149, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron11 = {
+		vec4(-2.276, -0.4472, -6.149, 1),
+		vec4(-1.724, 0.4472, -6.149, 1),
+		vec4(-2.724, 0.4472, -6.474, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron12 = {
+		vec4(-2.894, -0.4472, -7, 1),
+		vec4(-2.724, 0.4472, -6.474, 1),
+		vec4(-2.724, 0.4472, -7.526, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron13 = {
+		vec4(-2.276, -0.4472, -7.851, 1),
+		vec4(-2.724, 0.4472, -7.526, 1),
+		vec4(-1.724, 0.4472, -7.851, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron14 = {
+		vec4(-1.276, -0.4472, -7.526, 1),
+		vec4(-1.724, 0.4472, -7.851, 1),
+		vec4(-1.106, 0.4472, -7, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron15 = {
+		vec4(-1.724, 0.4472, -6.149, 1),
+		vec4(-1.106, 0.4472, -7, 1),
+		vec4(-2, 1, -7, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron16 = {
+		vec4(-2.724, 0.4472, -6.474, 1),
+		vec4(-1.724, 0.4472, -6.149, 1),
+		vec4(-2, 1, -7, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron17 = {
+		vec4(-2.724, 0.4472, -7.526, 1),
+		vec4(-2.724, 0.4472, -6.474, 1),
+		vec4(-2, 1, -7, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron18 = {
+		vec4(-1.724, 0.4472, -7.851, 1),
+		vec4(-2.724, 0.4472, -7.526, 1),
+		vec4(-2, 1, -7, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+	Triangle icosahedron19 = {
+		vec4(-1.106, 0.4472, -7, 1),
+		vec4(-1.724, 0.4472, -7.851, 1),
+		vec4(-2, 1, -7, 1),
+		vec4(1, 0, 0, 0),
+		vec4(1, 0.5, 0.5, 1),
+		100};
+
+	triangles.push_back(greenCone0);
+	triangles.push_back(greenCone1);
+	triangles.push_back(greenCone2);
+	triangles.push_back(greenCone3);
+	triangles.push_back(greenCone4);
+	triangles.push_back(greenCone5);
+	triangles.push_back(greenCone6);
+	triangles.push_back(greenCone7);
+	triangles.push_back(greenCone8);
+	triangles.push_back(greenCone9);
+	triangles.push_back(greenCone10);
+	triangles.push_back(greenCone11);
+
+	triangles.push_back(icosahedron0);
+	triangles.push_back(icosahedron1);
+	triangles.push_back(icosahedron2);
+	triangles.push_back(icosahedron3);
+	triangles.push_back(icosahedron4);
+	triangles.push_back(icosahedron5);
+	triangles.push_back(icosahedron6);
+	triangles.push_back(icosahedron7);
+	triangles.push_back(icosahedron8);
+	triangles.push_back(icosahedron9);
+	triangles.push_back(icosahedron10);
+	triangles.push_back(icosahedron11);
+	triangles.push_back(icosahedron12);
+	triangles.push_back(icosahedron13);
+	triangles.push_back(icosahedron14);
+	triangles.push_back(icosahedron15);
+	triangles.push_back(icosahedron16);
+	triangles.push_back(icosahedron17);
+	triangles.push_back(icosahedron18);
+	triangles.push_back(icosahedron19);
+	LoadShapes(spheres, triangles, planes, lights, program);
+
 }
 
 void LoadShapes(vector<Sphere> spheres, vector<Triangle> triangles, vector<Plane> planes, vector<Light> lights, GLuint program)
@@ -196,7 +608,6 @@ void LoadShapes(vector<Sphere> spheres, vector<Triangle> triangles, vector<Plane
 	glBindBufferBase(GL_UNIFORM_BUFFER, 2, triangleUBO);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 3, planeUBO);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 4, lightUBO);
-
 
 	GLuint sphereCountIndex = glGetUniformLocation(program, "numSpheres");
 	GLuint triangleCountIndex = glGetUniformLocation(program, "numTriangles");
