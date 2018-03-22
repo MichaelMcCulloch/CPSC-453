@@ -82,14 +82,14 @@ int main(int argc, char *argv[])
 		vec4(-2.75, -2.75, -10.5, 0),	//C
 		vec4(1, 1, 1, 0),				//Diffuse Color
 		vec4(1, 1, 1, 0),				//Specular Color
-		1.0 };							//Phong Exponent
+		10.0 };							//Phong Exponent
 	Triangle t2 = {
 		vec4(-2.75, -2.75, -5, 0),
 		vec4(2.75, -2.75, -5, 0),
 		vec4(-2.75, -2.75, -10.5, 0),
 		vec4(1, 1, 1, 0),
 		vec4(1, 1, 1, 0),
-		1.0 };
+		10.0 };
 	t.push_back(t1);
 	t.push_back(t2);
 
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 		vec4(0, 0, -10.5, 0),	//Point on plane
 		vec4(0, 0, 1, 0),		//Diffuse Color
 		vec4(1, 1, 1, 0),		//Specular Color
-		1.0 };					//Phong Exponent
+		10.0 };					//Phong Exponent
 	p.push_back(p1);
 
 	vector<Sphere> s = {};
@@ -109,11 +109,27 @@ int main(int argc, char *argv[])
 		vec4(1, 1, 1, 0),			//Specular Color
 		10.0,						//Phong Exponent
 		1.0};						//Sphere Radius
+	Sphere s2 = {
+		vec4(-1.5, -1, -7, 0),	//Center
+		vec4(0, 1, 0, 1),			//Diffuse Color
+		vec4(1, 1, 1, 0),			//Specular Color
+		10.0,						//Phong Exponent
+		0.5 };						//Sphere Radius
+	Sphere s3 = {
+		vec4(-2.25, -1.75, -7.75, 0),	//Center
+		vec4(0, 0, 1, 1),			//Diffuse Color
+		vec4(1, 1, 1, 0),			//Specular Color
+		10.0,						//Phong Exponent
+		0.25 };						//Sphere Radius
 	s.push_back(s1);
+	s.push_back(s2);
+	s.push_back(s3);
 
 	vector<Light> l = {};
-	Light l1 = {vec4(-25, 50, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.5f};
+	Light l1 = {vec4(-10, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.25};
+	Light l2 = { vec4(10, 5, -7.75, 0), vec4(1, 1, 1, 1), 1, 0.25 };
 	l.push_back(l1);
+	l.push_back(l2);
 
 	LoadShapes(s, t, p, l, program);
 
@@ -127,7 +143,7 @@ int main(int argc, char *argv[])
 		// call function to draw our scene
 		glDrawArrays(GL_POINTS, 0, geometry.elementCount);
 
-		yoff += 0.01;
+		yoff += 0.001;
 		if (yoff > 6) yoff = 0;
 
 		// check for an report any OpenGL errors
@@ -139,11 +155,10 @@ int main(int argc, char *argv[])
 	}
 
 	// reset state to default (no shader or geometry bound)
-	glBindVertexArray(0);
-	glUseProgram(0);
-
+	
 	// clean up allocated resources before exit
 	DestroyGeometry(&geometry);
+	glBindVertexArray(0);
 	glUseProgram(0);
 	glDeleteProgram(program);
 	glfwDestroyWindow(window);
