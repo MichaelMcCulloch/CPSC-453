@@ -99,6 +99,176 @@ vec3 trace(vec3 origin, vec3 ray, int depth)
 {
     vec3 phong;
 
+    //fwdPass collects the following information
+    vec3 specularCalc[numBounce];  //max(0, dot(R, V)^P) * shadow
+    vec3 diffuseCalc[numBounce];   //max(0, dot(L, N))   * shadow
+    float reflectance[numBounce];
+    vec3 diffuseColor[numBounce];
+    vec3 specularColor[numBounce];
+    for(int fwdPass = 0; fwdPass < numBounce; fwdPass++){
+
+        specularCalc[fwdPass] = vec3(0,0,0);  //max(0, dot(R, V)^P) * shadow
+        diffuseCalc[fwdPass] = vec3(0,0,0);   //max(0, dot(L, N))   * shadow
+        reflectance[fwdPass] = 0;
+        diffuseColor[fwdPass] = vec3(0,0,0);
+        specularColor[fwdPass] = vec3(0,0,0);
+        //find intersection point and type of object
+        int objectType = -1; //0 = sphere; 1 = plane; 2 = triangle
+        Sphere s;
+        Plane p;
+        Triangle t;
+
+        float minT = -1;
+        for (int i = 0; i < numSpheres; i++)
+        {
+            float test = intersectSphere(origin, ray, i);
+            if (test > 0 && (minT < 0 || test < minT))
+            {
+                minT = test;
+                objectType = 0;
+                s = sphere[i];
+            }
+        }
+        for (int i = 0; i < numPlanes; i++)
+        {
+            float test = intersectPlane(origin, ray, i);
+            if (test > 0 && (minT < 0 || test < minT))
+            {
+                minT = test;
+                objectType = 1;
+                p = plane[i];
+            }
+        }
+        for (int i = 0; i < numTriangles; i++)
+        {
+            float test = intersectTriangle(origin, ray, i);
+            if (test > 0 && (minT < 0 || test < minT))
+            {
+                minT = test;
+                objectType = 2;
+                t = triangle[i];
+            }
+        }
+
+        //no intersection
+        if (minT < 0){
+            diffuseColor[fwdPass] = vec3(0,0,0);
+            specularColor[fwdPass] = vec3(0,0,0);
+        }
+        //collect data from intersected object:
+        vec3 normal;
+        float phongExp;
+        vec3 intersect = origin + minT * ray;
+        switch (objectType)
+        {
+        case 0:
+            diffuseColor[fwdPass] = s.diffuseColor.xyz;
+            specularColor[fwdPass] = s.specularColor.xyz;
+            reflectance[fwdPass] = s.reflectance;
+            phongExp = s.phongExp;
+
+            normal = normalize(intersect - s.center.xyz);
+            break;
+        case 1:
+            diffuseColor[fwdPass] = p.diffuseColor.xyz;
+            specularColor[fwdPass] = p.specularColor.xyz;
+            reflectance[fwdPass] = p.reflectance;
+            phongExp = p.phongExp;
+
+            normal = normalize(p.norm.xyz);
+            break;
+        case 2:
+            diffuseColor[fwdPass] = t.diffuseColor.xyz;
+            specularColor[fwdPass] = t.specularColor.xyz;
+            reflectance[fwdPass] = t.reflectance;
+            phongExp = t.phongExp;
+
+            vec3 A = t.A.xyz;
+            vec3 B = t.B.xyz;
+            vec3 C = t.C.xyz;
+
+            vec3 N = B - A;
+            vec3 M = C - A;
+            normal = normalize(cross(N, M));
+            break;
+        default:
+            //never gonna happen
+            break;
+        }
+        intersect = intersect + 0.00001 * normal;
+
+        //collect phong lighting for each light source
+        for (int l = 0; l < numLights; l++)
+        {
+            //check if in shadow from light, sum shadow
+            vec3 center;
+            vec3 rLight;
+            vec3 shadow = vec3(0,0,0);
+            float dist;
+           
+            center = light[l].center.xyz;
+            dist = vecToMagnitude(center - intersect);
+            rLight = normalize(center - intersect);
+
+            bool found = false;
+
+            //check if an object is between light and object
+            for (int i = 0; i < numSpheres && !found; i++)
+            {
+                //move slightly in direction of normal
+                float test = intersectSphere(intersect, rLight, i);
+                if (test >= 0 && test <= dist)
+                    found = true;
+            }
+
+            for (int i = 0; i < numPlanes && !found; i++)
+            {
+                float test = intersectPlane(intersect, rLight, i);
+                if (test >= 0 && test <= dist)
+                    found = true;
+            }
+
+            for (int i = 0; i < numTriangles && !found; i++)
+            {
+                float test = intersectTriangle(intersect, rLight, i);
+                if (test >= 0 && test <= dist)
+                    found = true;
+            }
+
+            if (found)
+                shadow += vec3(0, 0, 0);
+            else
+                shadow += light[l].color.xyz * light[l].intensity;
+            
+            vec3 R = rLight - 2 * (dot(rLight, normal)) * normal;
+            //calculate phong data
+            specularCalc[fwdPass] += pow(max(0, dot(R, ray)), phongExp) * shadow;
+            diffuseCalc[fwdPass]  += (max(0, dot(rLight, normal))) * shadow;
+        }
+
+        //return temp;
+        
+        ray = ray - 2 * (dot(ray, normal)) * normal;
+        origin = intersect;
+    }
+
+    vec3 reflectedColor[numBounce];
+    for(int bwdPass = numBounce - 1; bwdPass >= 0; bwdPass--){
+        vec3 temp = vec3(0,0,0);
+        temp += ambientLight * diffuseColor[bwdPass];
+        temp += diffuseCalc[bwdPass] * diffuseColor[bwdPass];
+        temp += specularCalc[bwdPass] * specularColor[bwdPass];
+
+        if (bwdPass < numBounce - 1){
+            float ref = reflectance[bwdPass];
+            temp = (1 - ref) * temp + ref * reflectedColor[bwdPass + 1];
+        }
+        reflectedColor[bwdPass] = temp;
+    }
+
+    return reflectedColor[0];
+    
+/*
     //for each reflection
     for (int hop = 0; hop < 1; hop++)
     {
@@ -234,13 +404,15 @@ vec3 trace(vec3 origin, vec3 ray, int depth)
                     shadow += light[l].color.xyz * light[l].intensity / lightSamples;
                 }
             }
-            vec3 R = rLight - 2 * (dot(rLight, normal)) * normal ;
+            vec3 R = rLight - 2 * (dot(rLight, normal)) * normal;
 
             phong += diffuse * ambientLight;
             phong += (specular * pow(max(0, dot(R, ray)), phongExp) * shadow);
             phong += (diffuse * (max(0, dot(rLight, normal))) * shadow);
         }
     }
+
+    */
     return phong;
 }
 
