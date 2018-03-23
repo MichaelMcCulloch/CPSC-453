@@ -68,7 +68,7 @@ uniform int numTriangles;
 uniform int numPlanes;
 uniform int numLights;
 
-const int numBounce = 3; //the number of bounces which will be made
+const int numBounce = 4; //the number of bounces which will be made
 const vec3 ambientLight = vec3(0.1, 0.1, 0.1);
 uniform vec3 cameraOrigin;
 uniform float fov;

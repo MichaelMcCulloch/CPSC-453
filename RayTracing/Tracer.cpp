@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, geometry.elementCount);
 
 		
-		yoff += 0.01;
+		yoff += 0.001;
 		if (yoff > 4) {
 			yoff = 0;
 		}
@@ -628,6 +628,75 @@ void LoadScene2(GLuint program)
 
 }
 
+
+void LoadScene3(GLuint program) {
+	vector<Light> lights = {};
+	vector<Sphere> spheres = {};
+	vector<Triangle> triangles = {};
+	vector<Plane> planes = {};
+	Light light = {
+		vec4(4, 6, -1, 1),
+		vec4(1, 1, 1, 1),
+		1.0,
+		0.25 };
+	Light light2 = {
+		vec4(-4, 6, -1, 1),
+		vec4(1, 1, 1, 1),
+		1.0,
+		0.25 };
+
+	lights.push_back(light);
+	lights.push_back(light2);
+	// Floor
+	Plane floorPlane = {
+		vec4(0, 1, 0, 0),
+		vec4(0, -1, 0, 0),
+		vec4(1, 1, 1, 1),
+		vec4(1, 1, 1, 1),
+		10,
+		0.0 };
+
+	// Back wall
+	Plane wallPlane = {
+		vec4(0, 0, 1, 0),
+		vec4(0, 0, -12, 0),
+		vec4(1, 1, 1, 1),
+		vec4(1, 1, 1, 1),
+		10 };
+
+	Sphere sphereA = {
+		vec4(0, 0, -5, 1),
+		vec4(0, 0, 0, 1),
+		vec4(1, 1, 1, 1),
+		100,
+		1,
+		0 };
+	Sphere sphereB = {
+		vec4(1, 1, -5, 1),
+		vec4(0, 0, 0, 1),
+		vec4(1, 1, 1, 1),
+		100,
+		0.5,
+		0 };
+	Sphere sphereC = {
+		vec4(-1, 1, -5, 1),
+		vec4(0, 0, 0, 1),
+		vec4(1, 1, 1, 1),
+		100,
+		0.5,
+		0 };
+
+	planes.push_back(floorPlane);
+	planes.push_back(wallPlane);
+
+	spheres.push_back(sphereA);
+	spheres.push_back(sphereB);
+	spheres.push_back(sphereC);
+
+
+	LoadShapes(spheres, triangles, planes, lights, program);
+}
+
 void LoadShapes(vector<Sphere> spheres, vector<Triangle> triangles, vector<Plane> planes, vector<Light> lights, GLuint program)
 {
 	GLuint sphereUBO, triangleUBO, planeUBO, lightUBO;
@@ -709,6 +778,9 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 			break;
 		case GLFW_KEY_2:
 			LoadScene2(program);
+			break;
+		case GLFW_KEY_3:
+			LoadScene3(program);
 			break;
 		default:
 			break;
