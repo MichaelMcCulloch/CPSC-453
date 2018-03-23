@@ -192,7 +192,7 @@ vec3 trace(vec3 origin, vec3 ray, int depth)
             normal = normalize(cross(N, M));
             break;
         default:
-            //never gonna happen
+            // No intersection. Don't set anything
             break;
         }
         intersect = intersect + 0.00001 * normal;

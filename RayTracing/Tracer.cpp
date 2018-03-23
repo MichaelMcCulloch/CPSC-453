@@ -6,6 +6,7 @@ using namespace std;
 using namespace glm;
 
 ImageBuffer *ib;
+GLuint program;
 
 int main(int argc, char *argv[])
 {
@@ -47,7 +48,7 @@ int main(int argc, char *argv[])
 	QueryGLVersion();
 
 	// call function to load and compile shader programs
-	GLuint program = InitializeShaders();
+	program = InitializeShaders();
 	if (program == 0)
 	{
 		cout << "Program could not initialize shaders, TERMINATING" << endl;
@@ -94,7 +95,7 @@ int main(int argc, char *argv[])
 	while (!glfwWindowShouldClose(window))
 	{
 
-		vec3 origin = vec3(yoff - 3, 0, 0);
+		vec3 origin = vec3(0, 0, 0);
 		glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 		// call function to draw our scene
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, geometry.elementCount);
@@ -316,8 +317,9 @@ void LoadScene2(GLuint program)
 		vec4(1, -0.5, -3.5, 1),
 		vec4(1, 1, 0, 1),
 		vec4(1, 1, 1, 1),
-		10,
-		0.5};
+		1000,
+		0.5,
+		0.0};
 
 	// Reflective grey sphere
 	Sphere sphereGrey = {
@@ -434,7 +436,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.276, -0.4472, -6.149, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron1 = {
 		vec4(-1.276, -0.4472, -6.474, 1),
@@ -442,7 +444,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.276, -0.4472, -7.526, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron2 = {
 		vec4(-2, -1, -7, 1),
@@ -450,7 +452,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.894, -0.4472, -7, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron3 = {
 		vec4(-2, -1, -7, 1),
@@ -458,7 +460,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.276, -0.4472, -7.851, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron4 = {
 		vec4(-2, -1, -7, 1),
@@ -466,7 +468,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.276, -0.4472, -7.526, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron5 = {
 		vec4(-1.276, -0.4472, -6.474, 1),
@@ -474,7 +476,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.106, 0.4472, -7, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron6 = {
 		vec4(-2.276, -0.4472, -6.149, 1),
@@ -482,7 +484,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.724, 0.4472, -6.149, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron7 = {
 		vec4(-2.894, -0.4472, -7, 1),
@@ -490,7 +492,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.724, 0.4472, -6.474, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron8 = {
 		vec4(-2.276, -0.4472, -7.851, 1),
@@ -498,7 +500,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.724, 0.4472, -7.526, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron9 = {
 		vec4(-1.276, -0.4472, -7.526, 1),
@@ -506,7 +508,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.724, 0.4472, -7.851, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron10 = {
 		vec4(-1.276, -0.4472, -6.474, 1),
@@ -514,7 +516,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.724, 0.4472, -6.149, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron11 = {
 		vec4(-2.276, -0.4472, -6.149, 1),
@@ -522,7 +524,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.724, 0.4472, -6.474, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron12 = {
 		vec4(-2.894, -0.4472, -7, 1),
@@ -530,7 +532,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.724, 0.4472, -7.526, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron13 = {
 		vec4(-2.276, -0.4472, -7.851, 1),
@@ -538,7 +540,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.724, 0.4472, -7.851, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron14 = {
 		vec4(-1.276, -0.4472, -7.526, 1),
@@ -546,7 +548,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.106, 0.4472, -7, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron15 = {
 		vec4(-1.724, 0.4472, -6.149, 1),
@@ -554,7 +556,7 @@ void LoadScene2(GLuint program)
 		vec4(-2, 1, -7, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron16 = {
 		vec4(-2.724, 0.4472, -6.474, 1),
@@ -562,7 +564,7 @@ void LoadScene2(GLuint program)
 		vec4(-2, 1, -7, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron17 = {
 		vec4(-2.724, 0.4472, -7.526, 1),
@@ -570,7 +572,7 @@ void LoadScene2(GLuint program)
 		vec4(-2, 1, -7, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron18 = {
 		vec4(-1.724, 0.4472, -7.851, 1),
@@ -578,7 +580,7 @@ void LoadScene2(GLuint program)
 		vec4(-2, 1, -7, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 	Triangle icosahedron19 = {
 		vec4(-1.106, 0.4472, -7, 1),
@@ -586,7 +588,7 @@ void LoadScene2(GLuint program)
 		vec4(-2, 1, -7, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 0.5, 0.5, 1),
-		100,
+		10,
 		0.5};
 
 	triangles.push_back(greenCone0);
@@ -702,6 +704,11 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 			ib->Render();
 			ib->SaveToFile("scene.jpg");
 		}
+		case GLFW_KEY_1:
+			LoadScene1(program);
+			break;
+		case GLFW_KEY_2:
+			LoadScene2(program);
 			break;
 		default:
 			break;
