@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 	glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 	glUniform1f(fov, 30);
 
-	LoadScene2(program);
+	LoadScene1(program);
 
 	ib = new ImageBuffer();
 	ib->Initialize();
@@ -95,14 +95,14 @@ int main(int argc, char *argv[])
 	while (!glfwWindowShouldClose(window))
 	{
 
-		vec3 origin = vec3(0, 0, 0);
+		vec3 origin = vec3(yoff - 2, 0, 0);
 		glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 		// call function to draw our scene
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, geometry.elementCount);
 
 		
 		yoff += 0.01;
-		if (yoff > 6) {
+		if (yoff > 4) {
 			yoff = 0;
 		}
 
@@ -135,7 +135,7 @@ void LoadScene1(GLuint program)
 	vector<Triangle> triangles = {};
 	vector<Plane> planes = {};
 	Light l1 = {
-		vec4(0, 2.5, -7.75, 1),
+		vec4(0, 2.4, -7.75, 1),
 		vec4(1, 1, 1, 1),
 		1.0f,
 		0.5f};

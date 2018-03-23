@@ -196,22 +196,19 @@ vec3 trace(vec3 origin, vec3 ray, int depth)
             break;
         }
         intersect = intersect + 0.00001 * normal;
-
+        
         //collect phong lighting for each light source
         for (int l = 0; l < numLights; l++)
         {
             //check if in shadow from light, sum shadow
-            vec3 center;
-            vec3 rLight;
+            vec3 center = light[l].center.xyz;
+            vec3 rayToLight = center - intersect;
+            vec3 rLight = normalize(rayToLight);
             vec3 shadow = vec3(0,0,0);
-            float dist;
+            float dist = vecToMagnitude(rayToLight);
            
-            center = light[l].center.xyz;
-            dist = vecToMagnitude(center - intersect);
-            rLight = normalize(center - intersect);
-
+         
             bool found = false;
-
             //check if an object is between light and object
             for (int i = 0; i < numSpheres && !found; i++)
             {
