@@ -73,6 +73,9 @@ const vec3 ambientLight = vec3(0.1, 0.1, 0.1);
 uniform vec3 cameraOrigin;
 uniform float fov;
 
+uniform mat4 transform;
+uniform mat4 oTransform;
+
 const float pi = 3.1415926535897931;
 
 //the tracing operation; returns pixel color
@@ -91,7 +94,9 @@ float intersectTriangle(vec3 origin, vec3 ray, int triangleIndex);
 void main(void)
 {
     vec3 dir = directionFromPixel(vPos);
-    FragmentColour = vec4(trace(cameraOrigin, dir, 10), 1.0);
+    dir = (transform * vec4(dir, 1.0)).xyz;
+    vec3 newOrigin = (oTransform * vec4(cameraOrigin, 1.0)).xyz;
+    FragmentColour = vec4(trace(newOrigin, dir, 10), 1.0);
 }
 
 

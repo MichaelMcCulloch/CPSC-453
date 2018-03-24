@@ -8,6 +8,16 @@ using namespace glm;
 ImageBuffer *ib;
 GLuint program;
 
+glm::mat4 trans;
+glm::mat4 oTrans;
+
+
+glm::vec3 cameraPosition;
+float pitchAmt = 0, yawAmt = 0;
+float xOld = 0, yOld = 0;
+
+bool leftPressed = false;
+
 int main(int argc, char *argv[])
 {
 	// initialize the GLFW windowing system
@@ -35,7 +45,10 @@ int main(int argc, char *argv[])
 
 	// set keyboard callback function and make our context current (active)
 	glfwSetKeyCallback(window, KeyCallback);
+	glfwSetMouseButtonCallback(window, MouseButtonCallback);
+	glfwSetCursorPosCallback(window, CursorPosCallback);
 	glfwMakeContextCurrent(window);
+
 
 	//Intialize GLAD
 	if (!gladLoadGL())
@@ -82,6 +95,9 @@ int main(int argc, char *argv[])
 	vec3 origin = vec3(0.0f, 2.0f, 5.0f);
 	GLuint originLoc = glGetUniformLocation(program, "cameraOrigin");
 	GLuint fov = glGetUniformLocation(program, "fov");
+	GLuint transform = glGetUniformLocation(program, "transform");
+	GLuint oTransform = glGetUniformLocation(program, "oTransform");
+	
 	glUniform3fv(originLoc, 1, glm::value_ptr(origin));
 	glUniform1f(fov, 30);
 
@@ -91,12 +107,24 @@ int main(int argc, char *argv[])
 	ib->Initialize();
 
 	float yoff = 0.0;
+	
 	// run an event-triggered main loop
 	while (!glfwWindowShouldClose(window))
 	{
 
-		vec3 origin = vec3(yoff - 2, 0, 0);
+		vec3 origin = vec3(0, 0, 0);
 		glUniform3fv(originLoc, 1, glm::value_ptr(origin));
+
+		glm::mat4 trans;
+		glm::mat4 oTrans;
+		
+		trans = glm::rotate(trans, pitchAmt /500, vec3(0, 1, 0));
+		trans = glm::rotate(trans, yawAmt /500, vec3(1, 0, 0));
+		oTrans = glm::translate(oTrans, cameraPosition);
+		
+		
+		glUniformMatrix4fv(transform, 1, GL_FALSE, glm::value_ptr(trans));
+		glUniformMatrix4fv(oTransform, 1, GL_FALSE, glm::value_ptr(oTrans));
 		// call function to draw our scene
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, geometry.elementCount);
 
@@ -209,14 +237,16 @@ void LoadScene1(GLuint program)
 		vec4(2.75, -2.75, -10.5, 1),
 		vec4(0, 1, 0, 0),
 		vec4(1, 1, 1, 1),
-		10.0f};
+		10.0f,
+	0.5};
 	Triangle wallRightGreenT2 = {
 		vec4(2.75, -2.75, -5, 1),
 		vec4(2.75, 2.75, -5, 1),
 		vec4(2.75, -2.75, -10.5, 1),
 		vec4(0, 1, 0, 0),
 		vec4(1, 1, 1, 1),
-		10.0f};
+		10.0f,
+	0.5};
 
 	//Red wall on left
 	Triangle wallLeftRedT1 = {
@@ -225,14 +255,16 @@ void LoadScene1(GLuint program)
 		vec4(-2.75, 2.75, -10.5, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 1, 1, 1),
-		10.0f};
+		10.0f,
+	0.5};
 	Triangle wallLeftRedT2 = {
 		vec4(-2.75, 2.75, -5, 1),
 		vec4(-2.75, -2.75, -5, 1),
 		vec4(-2.75, 2.75, -10.5, 1),
 		vec4(1, 0, 0, 0),
 		vec4(1, 1, 1, 1),
-		10.0f};
+		10.0f,
+	0.5};
 
 	//Floor
 	Triangle floorT1 = {
@@ -773,6 +805,11 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 			ib->Render();
 			ib->SaveToFile("scene.jpg");
 		}
+		case GLFW_KEY_O:
+			pitchAmt = 0;
+			yawAmt = 0;
+			cameraPosition = vec3(0, 0, 0);
+			break;
 		case GLFW_KEY_1:
 			LoadScene1(program);
 			break;
@@ -782,10 +819,59 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 		case GLFW_KEY_3:
 			LoadScene3(program);
 			break;
+		
 		default:
 			break;
 		}
 	}
+	else {
+
+		vec3 upVector = vec3(0, 1, 0);
+		glm::mat4 trans;
+
+		trans = glm::rotate(trans, pitchAmt / 500, vec3(0, 1, 0));
+		trans = glm::rotate(trans, yawAmt / 500, vec3(1, 0, 0));
+
+		vec4 forwardT = trans * vec4(0, 0, 1, 1);
+		vec3 forwardVec = normalize(vec3(forwardT.x, forwardT.y, forwardT.z));
+		vec3 leftVec = cross(upVector, forwardVec);
+
+		switch (key) {
+		case GLFW_KEY_W:
+			cameraPosition -= forwardVec * 0.1f;
+			break;
+		case GLFW_KEY_A:
+			cameraPosition -= leftVec * 0.1f;
+			break;
+		case GLFW_KEY_S:
+			cameraPosition += forwardVec * 0.1f;
+			break;
+		case GLFW_KEY_D:
+			cameraPosition += leftVec * 0.1f;
+			break;
+		default: break;
+		}
+	}
+}
+
+
+void CursorPosCallback(GLFWwindow *window, double xpos, double ypos)
+{
+
+	if (leftPressed)
+	{
+		pitchAmt -= (xpos - xOld);
+		yawAmt -= (ypos - yOld);
+	}
+	
+	xOld = xpos;
+	yOld = ypos;
+}
+
+void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT)
+		leftPressed = (action == GLFW_PRESS);
 }
 
 GLuint InitializeShaders()
