@@ -257,14 +257,15 @@ vec3 trace(vec3 origin, vec3 ray, int depth)
     vec3 reflectedColor[numBounce];
     for(int bwdPass = numBounce - 1; bwdPass >= 0; bwdPass--){
         vec3 temp = vec3(0,0,0);
-        temp += ambientLight * diffuseColor[bwdPass];
-        temp += diffuseCalc[bwdPass] * diffuseColor[bwdPass];
-        temp += specularCalc[bwdPass] * specularColor[bwdPass];
-
+        
         if (bwdPass < numBounce - 1){
             float ref = reflectance[bwdPass];
             temp = (1 - ref) * temp + ref * reflectedColor[bwdPass + 1];
         }
+
+        temp += ambientLight * diffuseColor[bwdPass];
+        temp += diffuseCalc[bwdPass] * diffuseColor[bwdPass];
+        temp += specularCalc[bwdPass] * specularColor[bwdPass];
         reflectedColor[bwdPass] = temp;
     }
 

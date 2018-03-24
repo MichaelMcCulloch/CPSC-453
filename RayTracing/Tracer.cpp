@@ -181,11 +181,14 @@ void LoadScene1(GLuint program)
 	spheres.push_back(reflectiveGrey);
 
 	//Blue pyramid
+
+	vec4 lightBlue = vec4(0.0f, 191.0 / 255.0, 1.0, 0.0);
+
 	Triangle blueT1 = {
 		vec4(-0.4, -2.75, -9.55, 1),
 		vec4(-0.93, 0.55, -8.51, 1),
 		vec4(0.11, -2.75, -7.98, 1),
-		vec4(0, 0, 1, 0),
+		lightBlue,
 		vec4(1, 1, 1, 1),
 		10.f,
 		0.5};
@@ -193,7 +196,7 @@ void LoadScene1(GLuint program)
 		vec4(0.11, -2.75, -7.98, 1),
 		vec4(-0.93, 0.55, -8.51, 1),
 		vec4(-1.46, -2.75, -7.47, 1),
-		vec4(0, 0, 1, 0),
+		lightBlue,
 		vec4(1, 1, 1, 1),
 		10.f,
 		0.5 };
@@ -201,7 +204,7 @@ void LoadScene1(GLuint program)
 		vec4(-1.46, -2.75, -7.47, 1),
 		vec4(-0.93, 0.55, -8.51, 1),
 		vec4(-1.97, -2.75, -9.04, 1),
-		vec4(0, 0, 1, 0),
+		lightBlue,
 		vec4(1, 1, 1, 1),
 		10.f,
 		0.5 };
@@ -209,7 +212,7 @@ void LoadScene1(GLuint program)
 		vec4(-1.97, -2.75, -9.0, 14),
 		vec4(-0.93, 0.55, -8.51, 1),
 		vec4(-0.4, -2.75, -9.55, 1),
-		vec4(0, 0, 1, 0),
+		lightBlue,
 		vec4(1, 1, 1, 1),
 		10.f,
 		0.5 };
@@ -238,7 +241,7 @@ void LoadScene1(GLuint program)
 		vec4(0, 1, 0, 0),
 		vec4(1, 1, 1, 1),
 		10.0f,
-	0.5};
+		0};
 	Triangle wallRightGreenT2 = {
 		vec4(2.75, -2.75, -5, 1),
 		vec4(2.75, 2.75, -5, 1),
@@ -246,7 +249,7 @@ void LoadScene1(GLuint program)
 		vec4(0, 1, 0, 0),
 		vec4(1, 1, 1, 1),
 		10.0f,
-	0.5};
+		0};
 
 	//Red wall on left
 	Triangle wallLeftRedT1 = {
@@ -256,7 +259,7 @@ void LoadScene1(GLuint program)
 		vec4(1, 0, 0, 0),
 		vec4(1, 1, 1, 1),
 		10.0f,
-	0.5};
+		0};
 	Triangle wallLeftRedT2 = {
 		vec4(-2.75, 2.75, -5, 1),
 		vec4(-2.75, -2.75, -5, 1),
@@ -264,7 +267,7 @@ void LoadScene1(GLuint program)
 		vec4(1, 0, 0, 0),
 		vec4(1, 1, 1, 1),
 		10.0f,
-	0.5};
+		0};
 
 	//Floor
 	Triangle floorT1 = {
@@ -331,13 +334,13 @@ void LoadScene2(GLuint program)
 		vec4(1, 1, 1, 1),
 		vec4(1, 1, 1, 1),
 		10,
-		0.5};
+		0};
 
 	// Back wall
 	Plane wallPlane = {
 		vec4(0, 0, 1, 0),
 		vec4(0, 0, -12, 0),
-		vec4(1, 1, 1, 1),
+		vec4(0, 191.0/255.0, 1, 1),
 		vec4(1, 1, 1, 1),
 		10};
 
@@ -349,7 +352,7 @@ void LoadScene2(GLuint program)
 		vec4(1, -0.5, -3.5, 1),
 		vec4(1, 1, 0, 1),
 		vec4(1, 1, 1, 1),
-		1000,
+		10,
 		0.5,
 		0.0};
 
@@ -358,7 +361,7 @@ void LoadScene2(GLuint program)
 		vec4(0, 1, -5, 1),
 		vec4(0.5, 0.5, 0.5, 0.5),
 		vec4(1, 1, 1, 1),
-		10,
+		100,
 		0.4,
 		0.8};
 
@@ -376,97 +379,101 @@ void LoadScene2(GLuint program)
 	spheres.push_back(spherePurple);
 
 	// Green cone
+
+	vec4 greenCone = vec4(0, 1, 0, 1);
 	Triangle greenCone0 = {
 		vec4(0, -1, -5.8, 1),
 		vec4(0, 0.6, -5, 1),
 		vec4(0.4, -1, -5.693, 1),
-		vec4(0, 1, 0, 0),
+		greenCone,
 		vec4(1, 1, 1, 1),
 		10};
 	Triangle greenCone1 = {
 		vec4(0.4, -1, -5.693, 1),
 		vec4(0, 0.6, -5, 1),
 		vec4(0.6928, -1, -5.4, 1),
-		vec4(0, 1, 0, 0),
+		greenCone,
 		vec4(1, 1, 1, 1),
 		10};
 	Triangle greenCone2 = {
 		vec4(0.6928, -1, -5.4, 1),
 		vec4(0, 0.6, -5, 1),
 		vec4(0.8, -1, -5, 1),
-		vec4(0, 1, 0, 0),
+		greenCone,
 		vec4(1, 1, 1, 1),
 		10};
 	Triangle greenCone3 = {
 		vec4(0.8, -1, -5, 1),
 		vec4(0, 0.6, -5, 1),
 		vec4(0.6928, -1, -4.6, 1),
-		vec4(0, 1, 0, 0),
+		greenCone,
 		vec4(1, 1, 1, 1),
 		10};
 	Triangle greenCone4 = {
 		vec4(0.6928, -1, -4.6, 1),
 		vec4(0, 0.6, -5, 1),
 		vec4(0.4, -1, -4.307, 1),
-		vec4(0, 1, 0, 0),
+		greenCone,
 		vec4(1, 1, 1, 1),
 		10};
 	Triangle greenCone5 = {
 		vec4(0.4, -1, -4.307, 1),
 		vec4(0, 0.6, -5, 1),
 		vec4(0, -1, -4.2, 1),
-		vec4(0, 1, 0, 0),
+		greenCone,
 		vec4(1, 1, 1, 1),
 		10};
 	Triangle greenCone6 = {
 		vec4(0, -1, -4.2, 1),
 		vec4(0, 0.6, -5, 1),
 		vec4(-0.4, -1, -4.307, 1),
-		vec4(0, 1, 0, 0),
+		greenCone,
 		vec4(1, 1, 1, 1),
 		10};
 	Triangle greenCone7 = {
 		vec4(-0.4, -1, -4.307, 1),
 		vec4(0, 0.6, -5, 1),
 		vec4(-0.6928, -1, -4.6, 1),
-		vec4(0, 1, 0, 0),
+		greenCone,
 		vec4(1, 1, 1, 1),
 		10};
 	Triangle greenCone8 = {
 		vec4(-0.6928, -1, -4.6, 1),
 		vec4(0, 0.6, -5, 1),
 		vec4(-0.8, -1, -5, 1),
-		vec4(0, 1, 0, 0),
+		greenCone,
 		vec4(1, 1, 1, 1),
 		10};
 	Triangle greenCone9 = {
 		vec4(-0.8, -1, -5, 1),
 		vec4(0, 0.6, -5, 1),
 		vec4(-0.6928, -1, -5.4, 1),
-		vec4(0, 1, 0, 0),
+		greenCone,
 		vec4(1, 1, 1, 1),
 		10};
 	Triangle greenCone10 = {
 		vec4(-0.6928, -1, -5.4, 1),
 		vec4(0, 0.6, -5, 1),
 		vec4(-0.4, -1, -5.693, 1),
-		vec4(0, 1, 0, 0),
+		greenCone,
 		vec4(1, 1, 1, 1),
 		10};
 	Triangle greenCone11 = {
 		vec4(-0.4, -1, -5.693, 1),
 		vec4(0, 0.6, -5, 1),
 		vec4(0, -1, -5.8, 1),
-		vec4(0, 1, 0, 0),
+		greenCone,
 		vec4(1, 1, 1, 1),
 		10};
 
+
+	vec4 redIco = vec4(1, 0, 0, 1);
 	//, Shiny, red, icosahedron
 	Triangle icosahedron0 = {
 		vec4(-2, -1, -7, 1),
 		vec4(-1.276, -0.4472, -6.474, 1),
 		vec4(-2.276, -0.4472, -6.149, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -474,7 +481,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.276, -0.4472, -6.474, 1),
 		vec4(-2, -1, -7, 1),
 		vec4(-1.276, -0.4472, -7.526, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -482,7 +489,7 @@ void LoadScene2(GLuint program)
 		vec4(-2, -1, -7, 1),
 		vec4(-2.276, -0.4472, -6.149, 1),
 		vec4(-2.894, -0.4472, -7, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -490,7 +497,7 @@ void LoadScene2(GLuint program)
 		vec4(-2, -1, -7, 1),
 		vec4(-2.894, -0.4472, -7, 1),
 		vec4(-2.276, -0.4472, -7.851, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -498,7 +505,7 @@ void LoadScene2(GLuint program)
 		vec4(-2, -1, -7, 1),
 		vec4(-2.276, -0.4472, -7.851, 1),
 		vec4(-1.276, -0.4472, -7.526, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -506,7 +513,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.276, -0.4472, -6.474, 1),
 		vec4(-1.276, -0.4472, -7.526, 1),
 		vec4(-1.106, 0.4472, -7, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -514,7 +521,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.276, -0.4472, -6.149, 1),
 		vec4(-1.276, -0.4472, -6.474, 1),
 		vec4(-1.724, 0.4472, -6.149, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -522,7 +529,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.894, -0.4472, -7, 1),
 		vec4(-2.276, -0.4472, -6.149, 1),
 		vec4(-2.724, 0.4472, -6.474, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -530,7 +537,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.276, -0.4472, -7.851, 1),
 		vec4(-2.894, -0.4472, -7, 1),
 		vec4(-2.724, 0.4472, -7.526, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -538,7 +545,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.276, -0.4472, -7.526, 1),
 		vec4(-2.276, -0.4472, -7.851, 1),
 		vec4(-1.724, 0.4472, -7.851, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -546,7 +553,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.276, -0.4472, -6.474, 1),
 		vec4(-1.106, 0.4472, -7, 1),
 		vec4(-1.724, 0.4472, -6.149, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -554,7 +561,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.276, -0.4472, -6.149, 1),
 		vec4(-1.724, 0.4472, -6.149, 1),
 		vec4(-2.724, 0.4472, -6.474, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -562,7 +569,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.894, -0.4472, -7, 1),
 		vec4(-2.724, 0.4472, -6.474, 1),
 		vec4(-2.724, 0.4472, -7.526, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -570,7 +577,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.276, -0.4472, -7.851, 1),
 		vec4(-2.724, 0.4472, -7.526, 1),
 		vec4(-1.724, 0.4472, -7.851, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -578,7 +585,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.276, -0.4472, -7.526, 1),
 		vec4(-1.724, 0.4472, -7.851, 1),
 		vec4(-1.106, 0.4472, -7, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -586,7 +593,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.724, 0.4472, -6.149, 1),
 		vec4(-1.106, 0.4472, -7, 1),
 		vec4(-2, 1, -7, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -594,7 +601,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.724, 0.4472, -6.474, 1),
 		vec4(-1.724, 0.4472, -6.149, 1),
 		vec4(-2, 1, -7, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -602,7 +609,7 @@ void LoadScene2(GLuint program)
 		vec4(-2.724, 0.4472, -7.526, 1),
 		vec4(-2.724, 0.4472, -6.474, 1),
 		vec4(-2, 1, -7, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -610,7 +617,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.724, 0.4472, -7.851, 1),
 		vec4(-2.724, 0.4472, -7.526, 1),
 		vec4(-2, 1, -7, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
@@ -618,7 +625,7 @@ void LoadScene2(GLuint program)
 		vec4(-1.106, 0.4472, -7, 1),
 		vec4(-1.724, 0.4472, -7.851, 1),
 		vec4(-2, 1, -7, 1),
-		vec4(1, 0, 0, 0),
+		redIco,
 		vec4(1, 0.5, 0.5, 1),
 		10,
 		0.5};
