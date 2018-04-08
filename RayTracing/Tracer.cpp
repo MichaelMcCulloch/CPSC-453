@@ -241,7 +241,7 @@ void LoadScene1(GLuint program)
 		vec4(0, 1, 0, 0),
 		vec4(1, 1, 1, 1),
 		10.0f,
-		0};
+		1};
 	Triangle wallRightGreenT2 = {
 		vec4(2.75, -2.75, -5, 1),
 		vec4(2.75, 2.75, -5, 1),
@@ -249,7 +249,7 @@ void LoadScene1(GLuint program)
 		vec4(0, 1, 0, 0),
 		vec4(1, 1, 1, 1),
 		10.0f,
-		0};
+		1};
 
 	//Red wall on left
 	Triangle wallLeftRedT1 = {
@@ -259,7 +259,7 @@ void LoadScene1(GLuint program)
 		vec4(1, 0, 0, 0),
 		vec4(1, 1, 1, 1),
 		10.0f,
-		0};
+		1};
 	Triangle wallLeftRedT2 = {
 		vec4(-2.75, 2.75, -5, 1),
 		vec4(-2.75, -2.75, -5, 1),
@@ -267,7 +267,7 @@ void LoadScene1(GLuint program)
 		vec4(1, 0, 0, 0),
 		vec4(1, 1, 1, 1),
 		10.0f,
-		0};
+		1};
 
 	//Floor
 	Triangle floorT1 = {
